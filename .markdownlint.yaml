@@ -1,0 +1,32 @@
+# Configuration Markdownlint pour le projet NuShell
+# Règles adaptées pour la documentation technique en français
+
+MD013: false  # Désactive la limite de longueur de ligne (utile pour les exemples de code)
+MD033: false  # Désactive l'interdiction des balises HTML (utile pour les tableaux complexes)
+MD041: false  # Désactive l'obligation d'avoir un titre en première ligne
+
+# Règles activées
+MD001: true   # Titres hiérarchiques
+MD003: true   # Style de titre (ATX)
+MD007: true   # Indentation des listes
+MD010: true   # Pas de tabs
+MD012: true   # Pas de lignes vides multiples
+MD022: true   # Lignes vides autour des titres
+MD025: true   # Un seul titre H1 par fichier
+MD026: true   # Pas de ponctuation en fin de titre
+MD029: true   # Style de liste ordonnée
+MD030: true   # Espacement dans les listes
+MD031: true   # Lignes vides autour des blocs de code
+MD032: true   # Lignes vides autour des listes
+MD034: true   # Pas de liens nus
+MD036: true   # Pas d'emphase pour les titres
+MD040: true   # Langage spécifié pour les blocs de code
+MD042: true   # Pas de liens vides
+MD043: true   # Structure de titre requise (désactivée par défaut)
+MD044: true   # Noms propres en majuscules
+MD045: true   # Images avec texte alternatif
+MD046: true   # Style de bloc de code
+MD047: true   # Fichier se termine par une ligne vide
+MD048: true   # Style de code inline
+MD049: true   # Style d'emphase
+MD050: true   # Style de liste forte

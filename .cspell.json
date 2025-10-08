@@ -1,0 +1,39 @@
+{
+  "version": "0.2",
+  "language": "fr",
+  "words": [
+    "NuShell",
+    "nushell",
+    "netstat",
+    "AppData",
+    "SynologyDrive",
+    "OneDrive",
+    "iCloudDrive",
+    "lua-language-server",
+    "mercurial",
+    "gemini",
+    "luarc",
+    "cargo",
+    "lesshst",
+    "nohup",
+    "kinnar",
+    "repos",
+    "practical",
+    "iris",
+    "gourmands",
+    "répidement",
+    "collègues",
+    "formaté",
+    "commit",
+    "hook",
+    "markdownlint",
+    "cspell",
+    "streetsidesoftware",
+    "tcort",
+    "igorshubovych"
+  ],
+  "ignoreWords": [],
+  "import": [
+    "@cspell/dict-fr-fr/cspell-ext.json"
+  ]
+}
