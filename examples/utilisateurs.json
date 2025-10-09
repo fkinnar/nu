@@ -1,0 +1,134 @@
+[
+  {
+    "id": 1,
+    "nom": "Utilisateur1",
+    "email": "utilisateur1@exemple.com",
+    "actif": true,
+    "rôle": "admin",
+    "préférences": {
+      "thème": "sombre",
+      "notifications": {
+        "email": true,
+        "sms": true
+      }
+    },
+    "historique": [
+      {
+        "date": "2025-10-09 12:43:33",
+        "ip": "192.168.1.36"
+      },
+      {
+        "date": "2025-10-08 12:43:33",
+        "ip": "192.168.1.10"
+      },
+      {
+        "date": "2025-10-07 12:43:33",
+        "ip": "192.168.1.134"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "nom": "Utilisateur2",
+    "email": "utilisateur2@exemple.com",
+    "actif": false,
+    "rôle": "admin",
+    "préférences": {
+      "thème": "sombre",
+      "notifications": {
+        "email": false,
+        "sms": true
+      }
+    },
+    "historique": [
+      {
+        "date": "2025-10-09 12:43:33",
+        "ip": "192.168.1.216"
+      },
+      {
+        "date": "2025-10-08 12:43:33",
+        "ip": "192.168.1.239"
+      },
+      {
+        "date": "2025-10-07 12:43:33",
+        "ip": "192.168.1.80"
+      },
+      {
+        "date": "2025-10-06 12:43:33",
+        "ip": "192.168.1.173"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "nom": "Utilisateur3",
+    "email": "utilisateur3@exemple.com",
+    "actif": false,
+    "rôle": "guest",
+    "préférences": {
+      "thème": "sombre",
+      "notifications": {
+        "email": true,
+        "sms": true
+      }
+    },
+    "historique": [
+      {
+        "date": "2025-10-09 12:43:33",
+        "ip": "192.168.1.5"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "nom": "Utilisateur4",
+    "email": "utilisateur4@exemple.com",
+    "actif": true,
+    "rôle": "guest",
+    "préférences": {
+      "thème": "sombre",
+      "notifications": {
+        "email": true,
+        "sms": false
+      }
+    },
+    "historique": [
+      {
+        "date": "2025-10-09 12:43:33",
+        "ip": "192.168.1.128"
+      },
+      {
+        "date": "2025-10-08 12:43:33",
+        "ip": "192.168.1.100"
+      },
+      {
+        "date": "2025-10-07 12:43:33",
+        "ip": "192.168.1.205"
+      },
+      {
+        "date": "2025-10-06 12:43:33",
+        "ip": "192.168.1.178"
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "nom": "Utilisateur5",
+    "email": "utilisateur5@exemple.com",
+    "actif": true,
+    "rôle": "guest",
+    "préférences": {
+      "thème": "clair",
+      "notifications": {
+        "email": true,
+        "sms": false
+      }
+    },
+    "historique": [
+      {
+        "date": "2025-10-09 12:43:33",
+        "ip": "192.168.1.195"
+      }
+    ]
+  }
+]

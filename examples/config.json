@@ -1,0 +1,10 @@
+{
+  "theme": "sombre",
+  "langue": "fr",
+  "notifications": {
+    "email": true,
+    "sms": false
+  },
+  "version": 1.2
+}
+

@@ -1,0 +1,3 @@
+Ce fichier contient des notes diverses.
+Chaque ligne représente une idée ou une remarque.
+NuShell peut lire ce fichier avec 'open' et le transformer avec 'lines'.
