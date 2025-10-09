@@ -39,7 +39,7 @@ ls | columns
 ```
 
 > Les commandes qui accèdent au système de fichiers sont héritées du bash: ``ls``, ``cp``, ``mv``, ``rm``...
-> L'opérateur ``columns`` reçoit un tableau et retourne la liste des colonnes qu'il contient
+> L'opérateur ``columns`` reçoit un tableau et retourne la liste des colonnes qu'il contient.
 
 #### 🔹Lister les fichiers et filtrer par le nom
 
@@ -136,11 +136,11 @@ NuShell dispose de nombreuses commandes puissantes pour gérer les données.
 ```
 
 > Mettre un commande entre ``()`` permet de définir un bloc, l'interpréteur sait alors qu'il doit attendre la fin du bloc pour évaluer celui-ci.
-> ``ls | where type == "file"`` liste les fichiers (uniquement)
-> ``| get name`` récupère la colonne ``name``
-> ``| parse "{name}.{ext}"`` décompose chaque valeur en ``name.ext``
-> ``| group-by ext`` groupe les lignes par extension (remarque, on a alors un arbre en mémoire, plus un tableau)
-> ``| transpose ext files`` transforme le retour de group-by en tableau et nomme les deux colonnes ``ext`` et ``files`` (chaque ligne de la colonne ``files`` est alors elle -même un tableau de noms de fichiers)
+> ``ls | where type == "file"`` liste les fichiers (uniquement).
+> ``| get name`` récupère la colonne ``name``.
+> ``| parse "{name}.{ext}"`` décompose chaque valeur en ``name.ext``.
+> ``| group-by ext`` groupe les lignes par extension (remarque, on a alors un arbre en mémoire, plus un tableau).
+> ``| transpose ext files`` transforme le retour de group-by en tableau et nomme les deux colonnes ``ext`` et ``files`` (chaque ligne de la colonne ``files`` est alors elle -même un tableau de noms de fichiers).
 > ``| each { |it| { extension: $it.ext, count: ($it.files | length) } }``, crée un tableau à deux colonnes, ``extension`` et ``count``, pour lequel la valeur ``count`` est le nombre de lignes dans ``files``.
 > ``| sort-by count -r)`` trie le tableau final par ``count``, en *reverse*.
 
@@ -148,10 +148,10 @@ NuShell dispose de nombreuses commandes puissantes pour gérer les données.
 
 Parfois, malheureusement, certaines commandes ne retournent pas directement un tableau utilisable. Par exemple, *netstat* sous Windows :
 
-- En-tête de 4 lignes
-- Valeurs alignées avec espace, mais avec des colonnes manquantes
+- en-tête de 4 lignes;
+- valeurs alignées avec des espaces, mais avec des colonnes manquantes.
 
-On peut tout de même manipuler les données pour en créer un tableau
+On peut tout de même manipuler les données pour en créer un tableau :
 
 ```sh
 # On ne garde que les lignes TCP, qui ont 5 colonnes
@@ -324,7 +324,7 @@ open examples\employees.json | first
 ╰────────────┴───────────────────────────────────────────────────────────╯
 ```
 
-Pour récupérer les clés possibles dans un fichier JSON, par niveau
+Pour récupérer les clés possibles dans un fichier JSON, par niveau :
 
 ```sh
 open examples\employees.json | columns
@@ -350,7 +350,7 @@ open examples\employees.json | get profile | columns
 ╰───┴────────────╯
 ```
 
-On peut évidemment filtrer les données
+On peut évidemment filtrer les données :
 
 ```sh
 open examples\employees.json | where id =~ d03113f3 | get profile | get email
@@ -362,7 +362,7 @@ open examples\employees.json | where id =~ d03113f3 | get profile | get email
 ╰───┴───────────────────────╯
 ```
 
-Ou de manière plus compacte
+Ou de manière plus compacte :
 
 ```sh
 (open examples\employees.json | where id =~ d03113f3).profile.department.name
@@ -374,7 +374,7 @@ Ou de manière plus compacte
 ╰───┴─────────────╯
 ```
 
-Les filtres peuvent être plus complexes bien entendu
+Les filtres peuvent être plus complexes bien entendu.
 
 ```sh
 open examples\utilisateurs.json | where rôle == "admin" and préférences.notifications.email == true
@@ -388,7 +388,7 @@ open examples\utilisateurs.json | where rôle == "admin" and préférences.notif
 ╰───┴────┴──────────────┴──────────────────────────┴───────┴─────╯
 ```
 
-Comme on n'a qu'une seule ligne dans le tableau, pour rendre l'affichage plus lisible, on peut utiliser ``transpose``
+Comme on n'a qu'une seule ligne dans le tableau, pour rendre l'affichage plus lisible, on peut utiliser ``transpose``.
 
 ```sh
 open examples\utilisateurs.json | where rôle == "admin" and préférences.notifications.email == true | transpose
@@ -466,7 +466,7 @@ open examples/utilisateurs.json
 open examples\ventes.xlsx
 ```
 
-Ou en utilisant la commande ``from``
+Ou en utilisant la commande ``from`` :
 
 ```sh
 open --raw examples\ventes.xlsx | from xlsx
@@ -494,13 +494,13 @@ open --raw examples\ventes.xlsx | from xlsx
 ╰───────────┴────────────────────────────────────────╯
 ```
 
-Pour ouvrir une feuille de calcul en particulier
+Pour ouvrir une feuille de calcul en particulier :
 
 ```sh
 open --raw examples\ventes.xlsx | from xlsx --sheets [commandes]
 ```
 
-Ou
+Ou :
 
 ```sh
 open examples\ventes.xlsx | get commandes
@@ -520,9 +520,9 @@ open examples\ventes.xlsx | get commandes
 ╰───────────┴───────────────────────────────────────╯
 ```
 
-> Entre le ``[]``, on peut spécifier une liste de feuilles séparées par une ``,``
+> Entre le ``[]``, on peut spécifier une liste de feuilles séparées par une ``,``.
 
-Pour connaître la liste des feuilles disponibles dans un classeur
+Pour connaître la liste des feuilles disponibles dans un classeur.
 
 ```sh
 open examples\ventes.xlsx | columns
@@ -598,6 +598,7 @@ ls examples | to text | save ls.txt
 
 ```sh
 open --raw ls.txt
+
 name: examples\config.json
 type: file
 size: 133 B
@@ -649,7 +650,7 @@ open --raw personnes.json
 ]
 ```
 
-> NuShell prend en charge beaucoup d'autres formats : <https://www.nushell.sh/commands/docs/to.html>
+> NuShell prend en charge beaucoup d'autres formats : <https://www.nushell.sh/commands/docs/to.html>.
 
 ### 🔗 Jointures entre des tableaux en mémoire
 
@@ -672,7 +673,7 @@ open --raw ventes.xlsx | from xlsx --sheets [clients]
 ╰─────────┴────────────────────────────────────────╯
 ```
 
-Pour obtenir un tableau il faut donc récuper la valeur pour l'entrée ``clients``
+Pour obtenir un tableau il faut donc récuper la valeur pour l'entrée ``clients``.
 
 ```sh
 open --raw ventes.xlsx | from xlsx --sheets [clients] | get clients
@@ -687,7 +688,7 @@ open --raw ventes.xlsx | from xlsx --sheets [clients] | get clients
 ╰───┴───────────┴─────────┴──────────╯
 ```
 
-On a bien une table,  mais les en-têtes de colonnes ne sont pas corrects. Il faut dire à NuShell que la première ligne est un titre et pas une donnée.
+On a bien une table, mais les en-têtes de colonnes ne sont pas corrects. Il faut dire à NuShell que la première ligne est un titre et pas une donnée.
 
 ```sh
 open --raw ventes.xlsx | from xlsx --sheets [clients] | get clients | headers
@@ -720,4 +721,4 @@ $commandes | join $clients id_client
 ╰───┴───────────┴─────────┴─────────┴─────────┴──────────╯
 ```
 
-> NuShell supporte tous les types de jointures : <https://www.nushell.sh/commands/docs/join.html>
+> NuShell supporte tous les types de jointures : <https://www.nushell.sh/commands/docs/join.html>.
