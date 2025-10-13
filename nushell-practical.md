@@ -460,6 +460,101 @@ open examples/utilisateurs.json
 ╰───┴────┴──────────────┴─────────────────────╯
 ```
 
+#### 🔹Fichier JSON Lines
+
+Certains fichiers JSON formatés **par lignes**, chacunes de leurs lignes sont, elles-mêmes, un JSON valide. De tels fichiers ne peuvent pas être ouverts directement par ```open```.
+
+```sh
+open examples/titanic-parquet.json
+```
+
+```sh
+Error: nu::shell::error
+
+  × Error while parsing as json
+   ╭─[entry #37:1:6]
+ 1 │ open examples/titanic-parquet.json
+   ·      ──────────────┬──────────────
+   ·                    ╰── Could not parse '/Volumes/Work/src/nu/examples/titanic-parquet.json' with `from json`
+   ╰────
+  help: Check out `help from json` or `help from` for more options or open raw data with `open --raw '/Volumes/Work/src/
+        nu/examples/titanic-parquet.json'`
+
+Error:
+  × Error while parsing JSON text
+   ╭─[entry #37:1:1]
+ 1 │ open examples/titanic-parquet.json
+   · ──┬─
+   ·   ╰── error parsing JSON text
+   ╰────
+
+Error:
+  × Error while parsing JSON text
+   ╭─[2:1]
+ 1 │ {"PassengerId":"1","Survived":"0","Pclass":"3","Name":"Braund, Mr. Owen Harris","Sex":"male","Age":22,"SibSp":"1","Parch":"0","Ticket":"A\/5 21171","Fare":7.25,"Cabin":null,"Embarked":"S"}
+ 2 │ {"PassengerId":"2","Survived":"1","Pclass":"1","Name":"Cumings, Mrs. John Bradley (Florence Briggs Thayer)","Sex":"female","Age":38,"SibSp":"1","Parch":"0","Ticket":"PC 17599","Fare":71.2833,"Cabin":"C85","Embarked":"C"}
+   · ▲
+   · ╰── "trailing characters" at line 2 column 1
+ 3 │ {"PassengerId":"3","Survived":"1","Pclass":"3","Name":"Heikkinen, Miss. Laina","Sex":"female","Age":26,"SibSp":"0","Parch":"0","Ticket":"STON\/O2. 3101282","Fare":7.925,"Cabin":null,"Embarked":"S"}
+   ╰────
+```
+
+Il faut alors explicitement expliquer à NuShell comment lire ce type de fichier.
+
+```sh
+open examples/titanic-parquet.json --raw | lines | each {|line| $line | from json }
+```
+
+```sh
+╭─────┬─────────────┬──────────┬────────┬────────────────────────────────────────────────────────────────────────────┬─────╮
+│   # │ PassengerId │ Survived │ Pclass │                                    Name                                    │ ... │
+├─────┼─────────────┼──────────┼────────┼────────────────────────────────────────────────────────────────────────────┼─────┤
+│   0 │ 1           │ 0        │ 3      │ Braund, Mr. Owen Harris                                                    │ ... │
+│   1 │ 2           │ 1        │ 1      │ Cumings, Mrs. John Bradley (Florence Briggs Thayer)                        │ ... │
+│   2 │ 3           │ 1        │ 3      │ Heikkinen, Miss. Laina                                                     │ ... │
+│   3 │ 4           │ 1        │ 1      │ Futrelle, Mrs. Jacques Heath (Lily May Peel)                               │ ... │
+│   4 │ 5           │ 0        │ 3      │ Allen, Mr. William Henry                                                   │ ... │
+│   5 │ 6           │ 0        │ 3      │ Moran, Mr. James                                                           │ ... │
+│   6 │ 7           │ 0        │ 1      │ McCarthy, Mr. Timothy J                                                    │ ... │
+│   7 │ 8           │ 0        │ 3      │ Palsson, Master. Gosta Leonard                                             │ ... │
+
+...
+
+│ 886 │ 887         │ 0        │ 2      │ Montvila, Rev. Juozas                                                      │ ... │
+│ 887 │ 888         │ 1        │ 1      │ Graham, Miss. Margaret Edith                                               │ ... │
+│ 888 │ 889         │ 0        │ 3      │ Johnston, Miss. Catherine Helen "Carrie"                                   │ ... │
+│ 889 │ 890         │ 1        │ 1      │ Behr, Mr. Karl Howell                                                      │ ... │
+│ 890 │ 891         │ 0        │ 3      │ Dooley, Mr. Patrick                                                        │ ... │
+├─────┼─────────────┼──────────┼────────┼────────────────────────────────────────────────────────────────────────────┼─────┤
+│   # │ PassengerId │ Survived │ Pclass │                                    Name                                    │ ... │
+╰─────┴─────────────┴──────────┴────────┴────────────────────────────────────────────────────────────────────────────┴─────╯
+```
+
+On peut utiliser la même commande pour convertir le fichier JSON lines en fichier JSON classique.
+
+```sh
+open examples/titanic-parquet.json --raw | lines | each {|line| $line | from json } | to json | save fix.json
+```
+
+Ce qui permet de l'ouvrir de la manière habituelle par la suite.
+
+```sh
+open fix.json
+╭─────┬─────────────┬──────────┬────────┬────────────────────────────────────────────────────────────────────────────┬─────╮
+│   # │ PassengerId │ Survived │ Pclass │                                    Name                                    │ ... │
+├─────┼─────────────┼──────────┼────────┼────────────────────────────────────────────────────────────────────────────┼─────┤
+│   0 │ 1           │ 0        │ 3      │ Braund, Mr. Owen Harris                                                    │ ... │
+│   1 │ 2           │ 1        │ 1      │ Cumings, Mrs. John Bradley (Florence Briggs Thayer)                        │ ... │
+│   2 │ 3           │ 1        │ 3      │ Heikkinen, Miss. Laina                                                     │ ... │
+│   3 │ 4           │ 1        │ 1      │ Futrelle, Mrs. Jacques Heath (Lily May Peel)                               │ ... │
+│   4 │ 5           │ 0        │ 3      │ Allen, Mr. William Henry                                                   │ ... │
+│   5 │ 6           │ 0        │ 3      │ Moran, Mr. James                                                           │ ... │
+│   6 │ 7           │ 0        │ 1      │ McCarthy, Mr. Timothy J                                                    │ ... │
+│   7 │ 8           │ 0        │ 3      │ Palsson, Master. Gosta Leonard                                             │ ... │
+│   8 │ 9           │ 1        │ 3      │ Johnson, Mrs. Oscar W (Elisabeth Vilhelmina Berg)                          │ ... │
+│   9 │ 10          │ 1        │ 2      │ Nasser, Mrs. Nicholas (Adele Achem)                                        │ ... │
+```
+
 #### 🔹Lire un fichier Excel
 
 ```sh
