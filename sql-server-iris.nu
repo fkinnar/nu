@@ -39,7 +39,7 @@ export def "query-sql-server" [
     }
 
     # Exécute sqlcmd, nettoie la sortie et la convertit en tableau CSV.
-    let result = (sqlcmd -S $server -d $database -E -b -W -s "," -k 1 -Q $query | lines | where { |it| not ($it | str starts-with "-") and not ($it | str starts-with "(") and not ($it | is-empty) } | str join "\n" | from csv)
+    let result = (sqlcmd -S $server -d $database -b -W -s "," -k 1 -Q $query | lines | where { |it| not ($it | str starts-with "-") and not ($it | str starts-with "(") and not ($it | is-empty) } | str join "\n" | from csv)
 
     # Vérifie si le résultat est vide ou contient une erreur
     if ($result | is-empty) {
