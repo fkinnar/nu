@@ -2,14 +2,6 @@
 
 ## 📋 À faire
 
-### 🔗 Connexions SQL
-
-- [ ] Connexion SQL native (SQLite, PostgreSQL, MySQL)
-- [ ] Connexion SQL Server spécifique
-- [ ] Exemples de requêtes SELECT, INSERT, UPDATE, DELETE
-- [ ] Gestion des paramètres de connexion
-- [ ] Exemples avec des données réelles
-
 ### 📜 Scripting
 
 - [ ] Variables et assignation (`let`, `const`, `mut`)
