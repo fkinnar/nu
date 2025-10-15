@@ -2,15 +2,16 @@
 
 ## 📋 À faire
 
-### 📜 Scripting
+### 📜 Scripting - Avancé (Section future)
 
-- [ ] Variables et assignation (`let`, `const`, `mut`)
-- [ ] Conditions (`if`, `match`)
-- [ ] Boucles (`for`, `while`, `loop`)
-- [ ] Gestion d'erreurs (`try`, `catch`, `error handling`)
-- [ ] Fonctions (`def`, paramètres, valeurs de retour)
-- [ ] Fonctions exportées (modules, `export`)
+- [ ] Gestion d'erreurs avancée (propagation avec `?`, `try-catch` avancé)
+- [ ] Modules et organisation (`module`, `use`, `export use`)
+- [ ] Completions personnalisées (`def --env` pour completions)
+- [ ] Configuration avancée (`config.nu`, hooks, aliases)
+- [ ] Performance et optimisation (`par-each`, gros datasets)
+- [ ] Intégration système (processus, redirections)
 - [ ] Scripts autonomes (shebang, exécution)
+- [ ] Tests et validation de scripts
 
 ### 🔌 Plugins
 
@@ -34,8 +35,6 @@
 
 ### 🔧 Outils et utilitaires
 
-- [ ] Gestion des environnements (`$env`)
-- [ ] Variables d'environnement système
 - [ ] Chemins et navigation avancée
 - [ ] Compression/décompression de fichiers
 - [ ] Monitoring système (processus, mémoire, réseau)
@@ -63,9 +62,37 @@
 
 ## ✅ Terminé
 
+### 📚 Guide de base
+
 - [x] Structure de base du guide
 - [x] Tableaux en mémoire
 - [x] Ouverture de fichiers (texte, CSV, JSON, Excel)
 - [x] Conversion entre formats
 - [x] Jointures entre tableaux
 - [x] Intégration HTTP - API REST
+
+### 🌍 Variables d'environnement
+
+- [x] Accès aux variables d'environnement (`$env`)
+- [x] Variables d'environnement courantes (OS, PATH, USER, etc.)
+- [x] Utilisation dans les pipelines
+
+### 🛠️ Scripts et commandes personnalisées
+
+- [x] Concepts fondamentaux du langage (variables, types, conditions, boucles)
+- [x] Opérateurs et expressions (mathématiques, logiques, chaînes)
+- [x] Ranges et séquences (`1..10`, `'a'..'z'`)
+- [x] Closures et fonctions anonymes (explications détaillées)
+- [x] Casting et conversion de types (`into int`, `into datetime`, etc.)
+- [x] Manipulation de dates (`date now`, arithmétique temporelle)
+- [x] Valeur de retour des fonctions (retour automatique, `return`)
+- [x] Gestion des erreurs dans les scripts (`try-catch`, `error make`)
+- [x] Debugging et traçage (`debug`, `print`)
+- [x] Variables d'environnement dans les scripts (modification, persistance)
+- [x] Créer des commandes simples (`def`)
+- [x] Exporter des commandes (`export def`)
+- [x] Commandes qui modifient l'environnement (`def --env`)
+- [x] Commandes complexes avec gestion d'erreurs
+- [x] Wrapper de commandes externes (`def --wrapped`)
+- [x] Organisation des scripts (modules, configuration)
+- [x] Bonnes pratiques pour les scripts
