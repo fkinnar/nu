@@ -2040,3 +2040,2191 @@ my-git status
 7. **Documenter** l'usage avec des exemples concrets
 
 > Les scripts NuShell sont très puissants et permettent d'automatiser des tâches complexes tout en gardant la lisibilité et la maintenabilité du code.
+
+### 📜 Scripting Avancé
+
+#### 🔹Gestion d'erreurs avancée
+
+**Propagation d'erreurs avec `?` :**
+
+```sh
+# Fonction qui peut échouer
+def safe_divide [a: int, b: int] {
+    if $b == 0 {
+        error make { msg: "Division par zéro" }
+    } else {
+        $a / $b
+    }
+}
+
+# Propagation automatique des erreurs
+def calculate_average [numbers: list<int>] {
+    let sum = ($numbers | reduce -f 0 { |it, acc| $acc + $it })
+    let count = ($numbers | length)
+    safe_divide $sum $count  # L'erreur sera propagée automatiquement
+}
+
+# Test avec des données valides
+calculate_average [10, 20, 30, 40]
+
+# Test avec des données invalides (division par zéro)
+try {
+    calculate_average []
+} catch { |err|
+    print $"Erreur capturée: ($err)"
+}
+```
+
+```sh
+25
+Erreur capturée: nu::shell::error
+```
+
+**Try-catch avancé avec gestion de différents types d'erreurs :**
+
+```sh
+def process_file [file_path: string] {
+    try {
+        let content = (open $file_path)
+        let lines = ($content | lines | length)
+        print $"Fichier traité: ($lines) lignes"
+        $content
+    } catch { |err|
+        match ($err | get msg) {
+            "File not found" => {
+                print "Le fichier n'existe pas"
+                []
+            }
+            "Permission denied" => {
+                print "Accès refusé au fichier"
+                []
+            }
+            _ => {
+                print $"Erreur inattendue: ($err)"
+                []
+            }
+        }
+    }
+}
+
+# Test avec différents scénarios
+process_file "fichier-inexistant.txt"
+process_file "README.md"
+```
+
+#### 🔹Modules et organisation
+
+**Créer un module simple :**
+
+```sh
+# scripts/utils.nu
+export def --env cd-project [project_name: string] {
+    let project_path = ($env.HOME | path join "projects" $project_name)
+    if ($project_path | path exists) {
+        cd $project_path
+        print $"Projet '$project_name' chargé"
+    } else {
+        print $"Le projet '$project_name' n'existe pas"
+    }
+}
+
+export def format-date [date: datetime] {
+    $date | format date "%Y-%m-%d %H:%M:%S"
+}
+
+export def get-file-size [file_path: string] {
+    if ($file_path | path exists) {
+        (ls $file_path | get size.0)
+    } else {
+        0
+    }
+}
+```
+
+**Utiliser le module :**
+
+```sh
+# Charger le module
+use scripts/utils.nu *
+
+# Utiliser les fonctions exportées
+cd-project "mon-projet"
+format-date (date now)
+get-file-size "README.md"
+```
+
+**Module avec sous-modules :**
+
+```sh
+# scripts/database/mod.nu
+export use sqlite.nu
+export use postgres.nu
+export use mysql.nu
+
+# scripts/database/sqlite.nu
+export def create-table [db_path: string, table_name: string, schema: record] {
+    let create_sql = $"CREATE TABLE ($table_name) (($schema | transpose key value | each { |it| $"($it.key) ($it.value)" } | str join ", "))"
+    print $"Création de la table: ($create_sql)"
+    # Logique de création...
+}
+
+# scripts/database/postgres.nu
+export def connect [host: string, port: int, database: string, user: string] {
+    print $"Connexion à PostgreSQL: ($host):($port)/($database) as ($user)"
+    # Logique de connexion...
+}
+```
+
+#### 🔹Completions personnalisées
+
+**Completions pour les commandes personnalisées :**
+
+```sh
+# scripts/git-utils.nu
+export def --env git-branch [
+    action: string@"git-branch-actions"
+] {
+    match $action {
+        "list" => { git branch }
+        "create" => { git checkout -b $branch_name }
+        "delete" => { git branch -d $branch_name }
+        "switch" => { git checkout $branch_name }
+        _ => { print "Action non reconnue" }
+    }
+}
+
+# Définir les completions
+def "git-branch-actions" [] {
+    ["list", "create", "delete", "switch"]
+}
+
+# Completions pour les fichiers
+export def edit-config [
+    config_file: path@"config-files"
+] {
+    $env.EDITOR $config_file
+}
+
+def "config-files" [] {
+    [
+        "config.nu"
+        "env.nu" 
+        "login.nu"
+        "theme.nu"
+    ]
+}
+```
+
+#### 🔹Configuration avancée
+
+**Configuration avec hooks :**
+
+```sh
+# config.nu
+# Hook de changement de répertoire
+$env.config = ($env.config | upsert hooks {
+    pre_prompt: [{
+        # Mettre à jour le prompt avec des infos Git
+        let git_branch = (try { git branch --show-current } catch { "" })
+        let git_status = (try { git status --porcelain | lines | length } catch { 0 })
+        
+        if ($git_branch | is-not-empty) {
+            $env.PROMPT_COMMAND = $"($git_branch) ($git_status) > "
+        }
+    }]
+    
+    pre_execution: [{
+        # Logger les commandes exécutées
+        let cmd = $env.HISTORY_FILE
+        if ($cmd | is-not-empty) {
+            echo $"$(date now) | $cmd" | save --append ~/.nushell/history.log
+        }
+    }]
+})
+
+# Variables d'environnement conditionnelles
+if $env.OS == "Windows_NT" {
+    $env.EDITOR = "code"
+    $env.PATH = ($env.PATH | split row ";" | append "C:\\tools" | str join ";")
+} else {
+    $env.EDITOR = "vim"
+    $env.PATH = ($env.PATH | split row ":" | append "/usr/local/bin" | str join ":")
+}
+
+# Alias utiles
+alias ll = ls -la
+alias la = ls -a
+alias grep = grep --color=auto
+alias df = df -h
+alias du = du -h
+```
+
+**Configuration par environnement :**
+
+```sh
+# env.nu
+def load-env-config [env_name: string] {
+    let config_file = $"~/.config/nushell/env/($env_name).nu"
+    
+    if ($config_file | path exists) {
+        source $config_file
+        print $"Configuration '$env_name' chargée"
+    } else {
+        print $"Configuration '$env_name' non trouvée"
+    }
+}
+
+# Charger la configuration selon l'environnement
+if ("NUSHELL_ENV" in $env) {
+    load-env-config $env.NUSHELL_ENV
+} else {
+    load-env-config "default"
+}
+```
+
+#### 🔹Performance et optimisation
+
+**Traitement parallèle avec `par-each` :**
+
+```sh
+# Traitement séquentiel (lent)
+def process-files-slow [files: list<string>] {
+    $files | each { |file|
+        let content = (open $file)
+        let word_count = ($content | str words | length)
+        {file: $file, words: $word_count}
+    }
+}
+
+# Traitement parallèle (rapide)
+def process-files-fast [files: list<string>] {
+    $files | par-each { |file|
+        let content = (open $file)
+        let word_count = ($content | str words | length)
+        {file: $file, words: $word_count}
+    }
+}
+
+# Test avec plusieurs fichiers
+let files = (ls *.md | get name)
+process-files-fast $files
+```
+
+**Optimisation des gros datasets :**
+
+```sh
+# Traitement efficace de gros fichiers CSV
+def analyze-large-csv [file_path: string] {
+    open $file_path
+    | skip 1  # Ignorer l'en-tête
+    | par-each { |row|
+        # Traitement de chaque ligne
+        let processed = ($row | str split "," | each { |it| $it | str trim })
+        $processed
+    }
+    | group-by 0  # Grouper par première colonne
+    | each { |group|
+        {
+            category: $group.0,
+            count: ($group.1 | length),
+            avg_value: ($group.1 | get 1 | into float | math avg)
+        }
+    }
+}
+
+# Utilisation
+analyze-large-csv "big-data.csv"
+```
+
+#### 🔹Intégration système
+
+**Gestion des processus :**
+
+```sh
+# Surveiller les processus
+def monitor-process [process_name: string] {
+    while true {
+        let processes = (ps | where name =~ $process_name)
+        if ($processes | is-empty) {
+            print $"Processus '$process_name' non trouvé"
+        } else {
+            $processes | select name pid cpu mem
+        }
+        sleep 5sec
+    }
+}
+
+# Démarrer un processus en arrière-plan
+def start-background-process [command: string] {
+    let pid = (run-external --redirect-stdout --redirect-stderr $command | get pid)
+    print $"Processus démarré avec PID: ($pid)"
+    $pid
+}
+
+# Arrêter un processus
+def stop-process [pid: int] {
+    try {
+        kill $pid
+        print $"Processus ($pid) arrêté"
+    } catch {
+        print $"Impossible d'arrêter le processus ($pid)"
+    }
+}
+```
+
+**Redirections et pipes :**
+
+```sh
+# Redirection de sortie
+def save-command-output [command: string, output_file: string] {
+    run-external $command --redirect-stdout $output_file
+    print $"Sortie sauvegardée dans: ($output_file)"
+}
+
+# Pipe vers une commande externe
+def filter-with-grep [input: string, pattern: string] {
+    echo $input | run-external grep $pattern --redirect-stdout
+}
+
+# Combiner plusieurs commandes
+def complex-pipeline [input_file: string] {
+    open $input_file
+    | lines
+    | where { |it| $it | str contains "error" }
+    | str join "\n"
+    | run-external wc -l --redirect-stdout
+}
+```
+
+#### 🔹Scripts autonomes
+
+**Script avec shebang :**
+
+```sh
+#!/usr/bin/env nu
+
+# Script autonome pour nettoyer les fichiers temporaires
+def main [
+    --dry-run(-d): bool  # Mode simulation
+    --age: int = 7       # Âge en jours
+] {
+    let temp_dir = "/tmp"
+    let cutoff_date = (date now) - ($age * 1day)
+    
+    let old_files = (ls $temp_dir 
+        | where type == "file" 
+        | where modified < $cutoff_date)
+    
+    if $dry_run {
+        print "Mode simulation - fichiers qui seraient supprimés:"
+        $old_files | select name modified
+    } else {
+        print "Suppression des fichiers anciens..."
+        for $file in $old_files {
+            try {
+                rm $file.name
+                print $"Supprimé: ($file.name)"
+            } catch {
+                print $"Erreur lors de la suppression de: ($file.name)"
+            }
+        }
+    }
+}
+
+# Exécution du script
+main $args
+```
+
+**Script avec gestion d'arguments :**
+
+```sh
+#!/usr/bin/env nu
+
+def main [
+    input_file: string,
+    --output(-o): string,
+    --format: string@"formats" = "json",
+    --verbose(-v): bool
+] {
+    if $verbose {
+        print $"Traitement du fichier: ($input_file)"
+        print $"Format de sortie: ($format)"
+    }
+    
+    let output_file = if $output != null {
+        $output
+    } else {
+        ($input_file | path parse | get stem) + $".($format)"
+    }
+    
+    let data = (open $input_file)
+    
+    match $format {
+        "json" => { $data | to json | save $output_file }
+        "csv" => { $data | to csv | save $output_file }
+        "yaml" => { $data | to yaml | save $output_file }
+        _ => { error make { msg: "Format non supporté" } }
+    }
+    
+    print $"Fichier sauvegardé: ($output_file)"
+}
+
+def "formats" [] {
+    ["json", "csv", "yaml", "toml"]
+}
+
+main $args
+```
+
+#### 🔹Tests et validation de scripts
+
+**Tests unitaires simples :**
+
+```sh
+# scripts/tests.nu
+def test-math-functions [] {
+    print "Test des fonctions mathématiques..."
+    
+    # Test de la fonction add
+    let result1 = (add 2 3)
+    assert equal $result1 5 "Addition de 2 + 3"
+    
+    # Test de la fonction multiply
+    let result2 = (multiply 4 5)
+    assert equal $result2 20 "Multiplication de 4 * 5"
+    
+    print "Tous les tests mathématiques ont réussi!"
+}
+
+def test-file-operations [] {
+    print "Test des opérations de fichiers..."
+    
+    # Créer un fichier de test
+    echo "test content" | save test-file.txt
+    
+    # Tester la lecture
+    let content = (open test-file.txt)
+    assert equal $content "test content" "Lecture du fichier"
+    
+    # Nettoyer
+    rm test-file.txt
+    
+    print "Tous les tests de fichiers ont réussi!"
+}
+
+# Fonction d'assertion simple
+def assert equal [actual: any, expected: any, message: string] {
+    if $actual != $expected {
+        error make { 
+            msg: $"Test échoué: ($message). Attendu: ($expected), Obtenu: ($actual)" 
+        }
+    }
+}
+
+# Exécuter tous les tests
+def run-all-tests [] {
+    test-math-functions
+    test-file-operations
+    print "Tous les tests ont réussi! ✅"
+}
+```
+
+**Validation de scripts :**
+
+```sh
+# scripts/validator.nu
+def validate-script [script_path: string] {
+    print $"Validation du script: ($script_path)"
+    
+    # Vérifier la syntaxe
+    try {
+        source $script_path
+        print "✅ Syntaxe correcte"
+    } catch { |err|
+        print $"❌ Erreur de syntaxe: ($err)"
+        return false
+    }
+    
+    # Vérifier les fonctions exportées
+    let exported_functions = (scope commands | where is_exported == true)
+    if ($exported_functions | is-empty) {
+        print "⚠️  Aucune fonction exportée trouvée"
+    } else {
+        print $"✅ ($exported_functions | length) fonction(s) exportée(s)"
+    }
+    
+    # Vérifier la documentation
+    let script_content = (open $script_path)
+    if ($script_content | str contains "--help") {
+        print "✅ Documentation d'aide présente"
+    } else {
+        print "⚠️  Documentation d'aide manquante"
+    }
+    
+    print "Validation terminée"
+    true
+}
+
+# Utilisation
+validate-script "scripts/my-script.nu"
+```
+
+### 🔌 Plugins
+
+Les plugins étendent les capacités de NuShell avec de nouvelles commandes et fonctionnalités. Ils sont généralement écrits en Rust et peuvent être installés via `cargo` ou `plugin add`.
+
+#### 🔹Où trouver les plugins
+
+**Sources principales :**
+- **crates.io** : [https://crates.io/search?q=nu_plugin](https://crates.io/search?q=nu_plugin)
+- **GitHub** : Rechercher `nu_plugin` dans les dépôts
+- **Documentation officielle** : [https://www.nushell.sh/plugins/](https://www.nushell.sh/plugins/)
+
+**Plugins populaires :**
+- `nu_plugin_polars` - Analyse de données avancée
+- `nu_plugin_query` - Requêtes SQL sur les données
+- `nu_plugin_formats` - Support de formats supplémentaires
+- `nu_plugin_inc` - Gestion de versions
+- `nu_plugin_gstat` - Statistiques Git
+
+#### 🔹Installation via cargo install
+
+```sh
+# Installer un plugin depuis crates.io
+cargo install nu_plugin_polars
+cargo install nu_plugin_query
+cargo install nu_plugin_inc
+
+# Vérifier l'installation
+cargo list | grep nu_plugin
+```
+
+#### 🔹Installation via plugin add
+
+```sh
+# Ajouter un plugin (si disponible via plugin add)
+plugin add nu_plugin_polars
+plugin add nu_plugin_query
+
+# Lister les plugins installés
+plugin list
+```
+
+#### 🔹Initialisation et configuration
+
+**Activer les plugins dans config.nu :**
+
+```sh
+# config.nu
+# Charger les plugins
+register ~/.cargo/bin/nu_plugin_polars
+register ~/.cargo/bin/nu_plugin_query
+register ~/.cargo/bin/nu_plugin_inc
+
+# Configuration des plugins
+$env.config = ($env.config | upsert plugins {
+    polars: {
+        lazy: true
+        streaming: true
+    }
+    query: {
+        default_database: "sqlite"
+    }
+})
+```
+
+**Vérifier que les plugins sont chargés :**
+
+```sh
+# Lister les commandes disponibles
+help commands | where category =~ "plugin"
+
+# Tester un plugin
+polars --help
+query --help
+```
+
+#### 🔹Exemples concrets de plugins
+
+**nu_plugin_polars - Analyse de données :**
+
+```sh
+# Créer un dataset de test
+let sales_data = [
+    {date: "2024-01-01", product: "Laptop", price: 999, quantity: 5},
+    {date: "2024-01-02", product: "Mouse", price: 25, quantity: 20},
+    {date: "2024-01-03", product: "Keyboard", price: 75, quantity: 15},
+    {date: "2024-01-04", product: "Laptop", price: 999, quantity: 3},
+    {date: "2024-01-05", product: "Monitor", price: 299, quantity: 8}
+] | to csv | save sales.csv
+
+# Analyser avec Polars
+open sales.csv | polars df
+```
+
+```sh
+╭───┬────────────┬─────────┬───────┬──────────╮
+│ # │    date    │ product │ price │ quantity │
+├───┼────────────┼─────────┼───────┼──────────┤
+│ 0 │ 2024-01-01 │ Laptop  │   999 │        5 │
+│ 1 │ 2024-01-02 │ Mouse   │    25 │       20 │
+│ 2 │ 2024-01-03 │ Keyboard│    75 │       15 │
+│ 3 │ 2024-01-04 │ Laptop  │   999 │        3 │
+│ 4 │ 2024-01-05 │ Monitor │   299 │        8 │
+╰───┴────────────┴─────────┴───────┴──────────╯
+```
+
+**Opérations avancées avec Polars :**
+
+```sh
+# Calculer le chiffre d'affaires par produit
+open sales.csv | polars df | polars group-by product | polars agg [
+    (polars col quantity * polars col price | polars sum | polars alias "total_revenue")
+    (polars col quantity | polars sum | polars alias "total_quantity")
+]
+
+# Filtrer les produits avec un CA > 1000
+open sales.csv | polars df | polars filter (polars col price * polars col quantity > 1000)
+
+# Statistiques descriptives
+open sales.csv | polars df | polars describe
+```
+
+**nu_plugin_query - Requêtes SQL :**
+
+```sh
+# Créer une base de données SQLite
+let employees = [
+    {id: 1, name: "Alice", department: "IT", salary: 75000},
+    {id: 2, name: "Bob", department: "HR", salary: 65000},
+    {id: 3, name: "Charlie", department: "IT", salary: 80000},
+    {id: 4, name: "Diana", department: "Finance", salary: 70000}
+] | to csv | save employees.csv
+
+# Convertir en base SQLite
+open employees.csv | into sqlite employees.db
+
+# Requêtes SQL
+open employees.db | query db "SELECT department, AVG(salary) as avg_salary FROM main GROUP BY department"
+
+open employees.db | query db "SELECT * FROM main WHERE salary > 70000 ORDER BY salary DESC"
+```
+
+**nu_plugin_inc - Gestion de versions :**
+
+```sh
+# Incrémenter une version
+inc --major 1.2.3    # 2.0.0
+inc --minor 1.2.3    # 1.3.0
+inc --patch 1.2.3    # 1.2.4
+
+# Utilisation dans un script de déploiement
+def bump-version [version_type: string] {
+    let current_version = (open Cargo.toml | lines | where $it =~ "version" | parse "version = \"{version}\"" | get version.0)
+    let new_version = (inc --$version_type $current_version)
+    
+    print $"Version mise à jour: ($current_version) -> ($new_version)"
+    
+    # Mettre à jour le fichier Cargo.toml
+    open Cargo.toml | str replace $"version = \"($current_version)\"" $"version = \"($new_version)\"" | save Cargo.toml
+    
+    # Créer un tag Git
+    git add Cargo.toml
+    git commit -m $"Bump version to ($new_version)"
+    git tag $"v($new_version)"
+}
+```
+
+#### 🔹Autres plugins utiles
+
+**nu_plugin_formats - Formats supplémentaires :**
+
+```sh
+# Support pour TOML
+echo "title = 'Mon projet'
+version = '1.0.0'
+[author]
+name = 'Alice'
+email = 'alice@example.com'" | save config.toml
+
+open config.toml | from toml
+
+# Support pour YAML
+echo "database:
+  host: localhost
+  port: 5432
+  name: myapp
+  user: admin" | save config.yaml
+
+open config.yaml | from yaml
+```
+
+**nu_plugin_gstat - Statistiques Git :**
+
+```sh
+# Statistiques du dépôt Git
+gstat
+
+# Statistiques pour un auteur spécifique
+gstat --author "Alice"
+
+# Statistiques pour une période
+gstat --since "2024-01-01" --until "2024-12-31"
+```
+
+#### 🔹Créer un plugin simple
+
+**Structure d'un plugin minimal :**
+
+```rust
+// src/main.rs
+use nu_plugin::{serve_plugin, EvaluatedCall, LabeledError, MsgPackSerializer, Plugin};
+use nu_protocol::{Category, PluginSignature, SyntaxShape, Value};
+
+struct MyPlugin;
+
+impl Plugin for MyPlugin {
+    fn signature(&self) -> Vec<PluginSignature> {
+        vec![PluginSignature::build("my-command")
+            .desc("Ma commande personnalisée")
+            .required("input", SyntaxShape::String, "Entrée à traiter")
+            .category(Category::Custom("MyPlugin".into()))]
+    }
+
+    fn run(
+        &mut self,
+        name: &str,
+        call: &EvaluatedCall,
+        input: &Value,
+    ) -> Result<Value, LabeledError> {
+        match name {
+            "my-command" => {
+                let input_str: String = call.req(0)?;
+                let result = format!("Traitement de: {}", input_str);
+                Ok(Value::String { val: result, span: call.head })
+            }
+            _ => Err(LabeledError {
+                label: "Commande inconnue".into(),
+                msg: format!("Commande '{}' non reconnue", name),
+                span: Some(call.head),
+            }),
+        }
+    }
+}
+
+fn main() {
+    serve_plugin(&mut MyPlugin, MsgPackSerializer {})
+}
+```
+
+**Cargo.toml :**
+
+```toml
+[package]
+name = "nu_plugin_myplugin"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+nu-plugin = "0.87"
+nu-protocol = "0.87"
+```
+
+**Installation et utilisation :**
+
+```sh
+# Compiler le plugin
+cargo build --release
+
+# Installer
+cargo install --path .
+
+# Enregistrer dans NuShell
+register ~/.cargo/bin/nu_plugin_myplugin
+
+# Utiliser
+my-command "Hello World"
+```
+
+#### 🔹Bonnes pratiques pour les plugins
+
+1. **Nommage** : Utiliser le préfixe `nu_plugin_`
+2. **Documentation** : Inclure des exemples d'usage
+3. **Gestion d'erreurs** : Messages d'erreur clairs
+4. **Performance** : Optimiser pour les gros datasets
+5. **Tests** : Inclure des tests unitaires
+6. **Configuration** : Permettre la personnalisation
+7. **Compatibilité** : Tester avec différentes versions de NuShell
+
+> Les plugins permettent d'étendre considérablement les capacités de NuShell tout en gardant le shell léger et modulaire.
+
+### 🎨 Alias et Configuration Personnalisée
+
+#### 🔹Créer des alias utiles
+
+**Alias de base :**
+
+```sh
+# Alias pour les commandes fréquentes
+alias ll = ls -la
+alias la = ls -a
+alias lt = ls --long --du --size
+alias lh = ls -la | where type == "file" | sort-by size -r | first 10
+
+# Alias pour la navigation
+alias .. = cd ..
+alias ... = cd ../..
+alias .... = cd ../../..
+alias ~ = cd ~
+alias / = cd /
+
+# Alias pour Git
+alias gs = git status
+alias ga = git add
+alias gc = git commit
+alias gp = git push
+alias gl = git log --oneline
+alias gd = git diff
+alias gb = git branch
+alias gco = git checkout
+
+# Alias pour la gestion des processus
+alias ps = ps | sort-by cpu -r
+alias top = ps | where cpu > 0 | sort-by cpu -r | first 10
+alias killall = ps | where name =~ $in | get pid | each { |pid| kill $pid }
+```
+
+**Alias avec paramètres :**
+
+```sh
+# Alias pour la recherche
+alias find = ls **/* | where name =~ $in
+alias grep = grep --color=auto
+alias rg = rg --color=auto
+
+# Alias pour les archives
+alias untar = tar -xzf
+alias targz = tar -czf
+alias unzip = unzip -q
+
+# Alias pour la gestion des fichiers
+alias cp = cp -r
+alias mv = mv -i
+alias rm = rm -i
+alias mkdir = mkdir -p
+```
+
+**Alias complexes :**
+
+```sh
+# Alias pour le monitoring système
+alias meminfo = ps | where name != "ps" | reduce -f 0 { |it, acc| $acc + $it.mem } | into filesize
+alias diskusage = du | where physical > 1gb | sort-by physical -r | first 10
+alias netstat = netstat -tuln | lines | skip 2 | parse "{proto} {local} {foreign} {state}"
+
+# Alias pour le développement
+alias serve = python -m http.server 8000
+alias jupyter = jupyter notebook --no-browser --port=8888
+alias docker-clean = docker system prune -f
+alias k8s-pods = kubectl get pods -o wide
+```
+
+#### 🔹Configuration personnalisée (config.nu)
+
+**Configuration de base :**
+
+```sh
+# config.nu
+# Charger les modules
+source ~/.config/nushell/aliases.nu
+source ~/.config/nushell/functions.nu
+
+# Configuration de l'éditeur
+$env.EDITOR = "code"
+$env.VISUAL = "code"
+
+# Configuration Git
+$env.GIT_AUTHOR_NAME = "Votre Nom"
+$env.GIT_AUTHOR_EMAIL = "votre.email@example.com"
+
+# Configuration des couleurs
+$env.config = ($env.config | upsert color_config {
+    separator: "blue"
+    leading_trailing_space_bg: { attr: "n" }
+    header: "green_bold"
+    empty: "white"
+    bool: "white"
+    int: "white"
+    filesize: "white"
+    duration: "white"
+    date: "white"
+    range: "white"
+    float: "white"
+    string: "white"
+    nothing: "white"
+    binary: "white"
+    cellpath: "white"
+    row_index: "green_bold"
+    record: "white"
+    list: "white"
+    block: "white"
+    hints: "dark_gray"
+    search_result: { bg: "red" fg: "white" }
+    shape_flag: "blue_bold"
+    shape_float: "cyan_bold"
+    shape_int: "green_bold"
+    shape_bool: "light_cyan"
+    shape_internalcall: "cyan_bold"
+    shape_external: "cyan"
+    shape_externalarg: "green_bold"
+    shape_literal: "blue"
+    shape_operator: "yellow"
+    shape_signature: "green_bold"
+    shape_string: "green"
+    shape_string_interpolation: "cyan_bold"
+    shape_datetime: "blue_bold"
+    shape_list: "cyan_bold"
+    shape_table: "blue_bold"
+    shape_record: "cyan_bold"
+    shape_block: "blue_bold"
+    shape_filepath: "cyan"
+    shape_globpattern: "cyan_bold"
+    shape_variable: "blue"
+    shape_custom: "green"
+    shape_nothing: "light_cyan"
+})
+```
+
+**Configuration du prompt :**
+
+```sh
+# Prompt personnalisé
+def create_left_prompt [] {
+    let path_segment = if ($env.PWD | str length) > 20 {
+        ($env.PWD | str substring 0 20) + "..."
+    } else {
+        $env.PWD
+    }
+    
+    let git_branch = (try {
+        git branch --show-current
+    } catch {
+        ""
+    })
+    
+    let git_status = (try {
+        git status --porcelain | lines | length
+    } catch {
+        0
+    })
+    
+    let git_info = if ($git_branch | is-not-empty) {
+        if $git_status > 0 {
+            $"($git_branch) *"
+        } else {
+            $"($git_branch) ✓"
+        }
+    } else {
+        ""
+    }
+    
+    let user = $env.USER
+    let host = (hostname)
+    
+    $"($user)@($host) ($path_segment) ($git_info) > "
+}
+
+# Appliquer le prompt
+$env.PROMPT_COMMAND = { create_left_prompt }
+$env.PROMPT_COMMAND_RIGHT = { "" }
+```
+
+**Configuration des hooks :**
+
+```sh
+# Hooks de changement de répertoire
+$env.config = ($env.config | upsert hooks {
+    pre_prompt: [{
+        # Mettre à jour les informations Git
+        let git_branch = (try { git branch --show-current } catch { "" })
+        $env.GIT_BRANCH = $git_branch
+    }]
+    
+    pre_execution: [{
+        # Logger les commandes
+        let cmd = $env.HISTORY_FILE
+        if ($cmd | is-not-empty) {
+            echo $"$(date now) | $cmd" | save --append ~/.nushell/command_history.log
+        }
+    }]
+    
+    env_change: {
+        PWD: [{
+            # Mettre à jour le titre de la fenêtre
+            if ($env.TERM_PROGRAM == "vscode") {
+                print $"\e]0;NuShell - ($env.PWD)\a"
+            }
+        }]
+    }
+})
+```
+
+#### 🔹Thèmes et personnalisation de l'interface
+
+**Thème sombre personnalisé :**
+
+```sh
+# themes/dark.nu
+$env.config = ($env.config | upsert color_config {
+    separator: "light_blue"
+    leading_trailing_space_bg: { attr: "n" }
+    header: "green_bold"
+    empty: "dark_gray"
+    bool: "light_cyan"
+    int: "light_blue"
+    filesize: "light_blue"
+    duration: "light_blue"
+    date: "light_blue"
+    range: "light_blue"
+    float: "light_blue"
+    string: "light_green"
+    nothing: "dark_gray"
+    binary: "light_blue"
+    cellpath: "light_blue"
+    row_index: "green_bold"
+    record: "white"
+    list: "white"
+    block: "white"
+    hints: "dark_gray"
+    search_result: { bg: "red" fg: "white" }
+    shape_flag: "light_blue_bold"
+    shape_float: "light_blue_bold"
+    shape_int: "light_blue_bold"
+    shape_bool: "light_cyan"
+    shape_internalcall: "light_blue_bold"
+    shape_external: "light_blue"
+    shape_externalarg: "light_green_bold"
+    shape_literal: "light_blue"
+    shape_operator: "yellow"
+    shape_signature: "light_green_bold"
+    shape_string: "light_green"
+    shape_string_interpolation: "light_blue_bold"
+    shape_datetime: "light_blue_bold"
+    shape_list: "light_blue_bold"
+    shape_table: "light_blue_bold"
+    shape_record: "light_blue_bold"
+    shape_block: "light_blue_bold"
+    shape_filepath: "light_blue"
+    shape_globpattern: "light_blue_bold"
+    shape_variable: "light_blue"
+    shape_custom: "light_green"
+    shape_nothing: "dark_gray"
+})
+```
+
+**Thème clair personnalisé :**
+
+```sh
+# themes/light.nu
+$env.config = ($env.config | upsert color_config {
+    separator: "dark_blue"
+    leading_trailing_space_bg: { attr: "n" }
+    header: "dark_green"
+    empty: "dark_gray"
+    bool: "dark_cyan"
+    int: "dark_blue"
+    filesize: "dark_blue"
+    duration: "dark_blue"
+    date: "dark_blue"
+    range: "dark_blue"
+    float: "dark_blue"
+    string: "dark_green"
+    nothing: "dark_gray"
+    binary: "dark_blue"
+    cellpath: "dark_blue"
+    row_index: "dark_green"
+    record: "black"
+    list: "black"
+    block: "black"
+    hints: "dark_gray"
+    search_result: { bg: "yellow" fg: "black" }
+    shape_flag: "dark_blue"
+    shape_float: "dark_blue"
+    shape_int: "dark_blue"
+    shape_bool: "dark_cyan"
+    shape_internalcall: "dark_blue"
+    shape_external: "dark_blue"
+    shape_externalarg: "dark_green"
+    shape_literal: "dark_blue"
+    shape_operator: "dark_yellow"
+    shape_signature: "dark_green"
+    shape_string: "dark_green"
+    shape_string_interpolation: "dark_blue"
+    shape_datetime: "dark_blue"
+    shape_list: "dark_blue"
+    shape_table: "dark_blue"
+    shape_record: "dark_blue"
+    shape_block: "dark_blue"
+    shape_filepath: "dark_blue"
+    shape_globpattern: "dark_blue"
+    shape_variable: "dark_blue"
+    shape_custom: "dark_green"
+    shape_nothing: "dark_gray"
+})
+```
+
+**Changer de thème dynamiquement :**
+
+```sh
+# functions/theme.nu
+export def switch-theme [theme_name: string] {
+    match $theme_name {
+        "dark" => { source ~/.config/nushell/themes/dark.nu }
+        "light" => { source ~/.config/nushell/themes/light.nu }
+        "default" => { source ~/.config/nushell/themes/default.nu }
+        _ => { print "Thème non trouvé. Thèmes disponibles: dark, light, default" }
+    }
+    
+    print $"Thème changé vers: ($theme_name)"
+}
+
+# Alias pour changer de thème
+alias theme = switch-theme
+alias dark = switch-theme dark
+alias light = switch-theme light
+```
+
+#### 🔹Intégration avec Git
+
+**Commandes Git natives :**
+
+```sh
+# functions/git.nu
+export def git-status [] {
+    git status --porcelain | lines | each { |line|
+        let parts = ($line | split row " " | where $it != "")
+        let status = $parts.0
+        let file = $parts.1
+        
+        {
+            status: $status,
+            file: $file,
+            type: (match $status {
+                "M" => "Modified"
+                "A" => "Added"
+                "D" => "Deleted"
+                "R" => "Renamed"
+                "C" => "Copied"
+                "U" => "Unmerged"
+                "?" => "Untracked"
+                "!" => "Ignored"
+                _ => "Unknown"
+            })
+        }
+    }
+}
+
+export def git-log [--oneline(-o): bool] {
+    if $oneline {
+        git log --oneline --graph --decorate
+    } else {
+        git log --graph --pretty=format:"%h - %an, %ar : %s"
+    }
+}
+
+export def git-branch-info [] {
+    let current_branch = (git branch --show-current)
+    let branches = (git branch -a | lines | each { |it| $it | str trim | str replace "remotes/origin/" "" })
+    let remotes = (git remote -v | lines | each { |it| $it | split row " " | get 0 })
+    
+    {
+        current: $current_branch,
+        local: ($branches | where not ($it | str contains "origin/")),
+        remote: ($branches | where $it | str contains "origin/"),
+        remotes: $remotes
+    }
+}
+
+# Alias pour les commandes Git
+alias gs = git-status
+alias gl = git-log
+alias gb = git-branch-info
+alias gd = git diff
+alias ga = git add
+alias gc = git commit
+alias gp = git push
+alias gpl = git pull
+```
+
+**Workflow Git automatisé :**
+
+```sh
+# functions/git-workflow.nu
+export def git-quick-commit [message: string] {
+    git add .
+    git commit -m $message
+    print "Commit créé avec succès"
+}
+
+export def git-push-branch [branch_name: string] {
+    git push -u origin $branch_name
+    print $"Branche ($branch_name) poussée vers origin"
+}
+
+export def git-sync [] {
+    git fetch --all
+    git pull origin (git branch --show-current)
+    print "Synchronisation terminée"
+}
+
+export def git-cleanup [] {
+    git branch --merged | lines | where $it != "*" and $it != "main" and $it != "master" | each { |branch|
+        git branch -d ($branch | str trim)
+        print $"Branche supprimée: ($branch)"
+    }
+}
+
+# Alias pour le workflow
+alias gqc = git-quick-commit
+alias gpb = git-push-branch
+alias gsync = git-sync
+alias gclean = git-cleanup
+```
+
+#### 🔹Configuration par environnement
+
+**Configuration de développement :**
+
+```sh
+# env/development.nu
+$env.NODE_ENV = "development"
+$env.DEBUG = "true"
+$env.LOG_LEVEL = "debug"
+
+# Configuration de la base de données
+$env.DATABASE_URL = "postgresql://localhost:5432/myapp_dev"
+$env.REDIS_URL = "redis://localhost:6379"
+
+# Configuration des services
+$env.API_URL = "http://localhost:3000"
+$env.WEB_URL = "http://localhost:8080"
+
+# Alias spécifiques au développement
+alias dev-server = npm run dev
+alias test = npm test
+alias build = npm run build
+alias lint = npm run lint
+```
+
+**Configuration de production :**
+
+```sh
+# env/production.nu
+$env.NODE_ENV = "production"
+$env.DEBUG = "false"
+$env.LOG_LEVEL = "error"
+
+# Configuration de la base de données
+$env.DATABASE_URL = $env.PROD_DATABASE_URL
+$env.REDIS_URL = $env.PROD_REDIS_URL
+
+# Configuration des services
+$env.API_URL = $env.PROD_API_URL
+$env.WEB_URL = $env.PROD_WEB_URL
+
+# Alias spécifiques à la production
+alias deploy = ./scripts/deploy.sh
+alias backup = ./scripts/backup.sh
+alias monitor = ./scripts/monitor.sh
+```
+
+**Charger la configuration selon l'environnement :**
+
+```sh
+# config.nu
+def load-env-config [env_name: string] {
+    let config_file = $"~/.config/nushell/env/($env_name).nu"
+    
+    if ($config_file | path exists) {
+        source $config_file
+        print $"Configuration '$env_name' chargée"
+    } else {
+        print $"Configuration '$env_name' non trouvée"
+    }
+}
+
+# Charger la configuration selon la variable d'environnement
+if ("NUSHELL_ENV" in $env) {
+    load-env-config $env.NUSHELL_ENV
+} else {
+    load-env-config "development"
+}
+
+# Fonction pour changer d'environnement
+export def switch-env [env_name: string] {
+    $env.NUSHELL_ENV = $env_name
+    load-env-config $env_name
+    print $"Environnement changé vers: ($env_name)"
+}
+```
+
+> La configuration personnalisée permet d'adapter NuShell à vos besoins spécifiques et d'automatiser vos workflows quotidiens.
+
+### 🔧 Outils et Utilitaires
+
+#### 🔹Chemins et navigation avancée
+
+**Navigation intelligente :**
+
+```sh
+# Fonction de navigation avec historique
+export def --env smart-cd [path: string] {
+    # Sauvegarder l'ancien répertoire
+    let old_path = $env.PWD
+    
+    # Changer de répertoire
+    cd $path
+    
+    # Ajouter à l'historique
+    $env.DIR_HISTORY = ($env.DIR_HISTORY | default [] | append $old_path | last 50)
+    
+    print $"Répertoire changé: ($old_path) -> ($env.PWD)"
+}
+
+# Alias pour la navigation intelligente
+alias cd = smart-cd
+alias back = cd $env.DIR_HISTORY.0
+
+# Navigation rapide vers les dossiers fréquents
+export def --env quick-cd [name: string] {
+    let quick_paths = {
+        "docs" => "~/Documents",
+        "proj" => "~/Projects",
+        "temp" => "/tmp",
+        "home" => "~",
+        "root" => "/"
+    }
+    
+    if ($name in $quick_paths) {
+        cd ($quick_paths | get $name)
+        print $"Navigué vers: ($name) -> ($env.PWD)"
+    } else {
+        print "Dossier rapide non trouvé. Dossiers disponibles:"
+        $quick_paths | transpose name path | select name
+    }
+}
+
+# Alias pour la navigation rapide
+alias qcd = quick-cd
+```
+
+**Recherche de fichiers avancée :**
+
+```sh
+# Recherche de fichiers par nom
+export def find-file [pattern: string, --directory(-d): string = "."] {
+    ls $directory **/* | where name =~ $pattern | select name type size modified
+}
+
+# Recherche de fichiers par contenu
+export def find-content [pattern: string, --directory(-d): string = ".", --type(-t): string = "file"] {
+    ls $directory **/* | where type == $type | each { |file|
+        try {
+            let content = (open $file.name --raw)
+            if ($content | str contains $pattern) {
+                {file: $file.name, matches: ($content | str index-of $pattern | length)}
+            }
+        } catch {
+            # Ignorer les fichiers non lisibles
+        }
+    } | where $it != null
+}
+
+# Recherche de fichiers par taille
+export def find-large-files [--min-size(-s): string = "100MB", --directory(-d): string = "."] {
+    let min_bytes = ($min_size | into filesize)
+    ls $directory **/* | where type == "file" and size > $min_bytes | sort-by size -r
+}
+
+# Alias pour la recherche
+alias ff = find-file
+alias fc = find-content
+alias fl = find-large-files
+```
+
+**Gestion des chemins :**
+
+```sh
+# Fonction pour nettoyer les chemins
+export def clean-path [path: string] {
+    $path | path expand | path normalize
+}
+
+# Fonction pour obtenir le chemin relatif
+export def relative-path [target: string, base: string = $env.PWD] {
+    let target_path = ($target | path expand)
+    let base_path = ($base | path expand)
+    
+    if ($target_path | str starts-with $base_path) {
+        $target_path | str substring ($base_path | str length).. | str substring 1..
+    } else {
+        $target_path
+    }
+}
+
+# Fonction pour créer une structure de dossiers
+export def mkdir-tree [structure: record] {
+    $structure | transpose name children | each { |item|
+        let dir_path = $item.name
+        mkdir $dir_path
+        
+        if ($item.children | is-not-empty) {
+            cd $dir_path
+            mkdir-tree $item.children
+            cd ..
+        }
+    }
+}
+
+# Exemple d'utilisation
+mkdir-tree {
+    "project": {
+        "src": {
+            "components": {},
+            "utils": {}
+        },
+        "tests": {},
+        "docs": {}
+    }
+}
+```
+
+#### 🔹Compression/décompression de fichiers
+
+**Gestion des archives :**
+
+```sh
+# Fonction de compression universelle
+export def compress [input: string, --output(-o): string, --format(-f): string = "zip"] {
+    let output_file = if $output != null {
+        $output
+    } else {
+        ($input | path parse | get stem) + $".($format)"
+    }
+    
+    match $format {
+        "zip" => { zip -r $output_file $input }
+        "tar" => { tar -cf $output_file $input }
+        "targz" => { tar -czf $output_file $input }
+        "tarbz2" => { tar -cjf $output_file $input }
+        "7z" => { 7z a $output_file $input }
+        _ => { error make { msg: "Format non supporté" } }
+    }
+    
+    print $"Archive créée: ($output_file)"
+}
+
+# Fonction de décompression universelle
+export def extract [archive: string, --output(-o): string] {
+    let output_dir = if $output != null {
+        $output
+    } else {
+        $archive | path parse | get stem
+    }
+    
+    mkdir $output_dir
+    cd $output_dir
+    
+    let ext = ($archive | path parse | get extension)
+    match $ext {
+        "zip" => { unzip $archive }
+        "tar" => { tar -xf $archive }
+        "gz" => { tar -xzf $archive }
+        "bz2" => { tar -xjf $archive }
+        "7z" => { 7z x $archive }
+        _ => { error make { msg: "Format d'archive non supporté" } }
+    }
+    
+    print $"Archive extraite dans: ($output_dir)"
+}
+
+# Alias pour la compression
+alias zip = compress --format zip
+alias tar = compress --format tar
+alias targz = compress --format targz
+alias extract = extract
+```
+
+**Gestion des sauvegardes :**
+
+```sh
+# Fonction de sauvegarde avec horodatage
+export def backup [source: string, --destination(-d): string = "~/backups"] {
+    let timestamp = (date now | format date "%Y%m%d_%H%M%S")
+    let source_name = ($source | path parse | get stem)
+    let backup_name = $"($source_name)_($timestamp).tar.gz"
+    let backup_path = ($destination | path join $backup_name)
+    
+    mkdir $destination
+    tar -czf $backup_path $source
+    
+    print $"Sauvegarde créée: ($backup_path)"
+    print $"Taille: (($backup_path | ls | get size.0) | into filesize)"
+}
+
+# Fonction de nettoyage des sauvegardes anciennes
+export def cleanup-backups [backup_dir: string = "~/backups", --keep-days(-k): int = 30] {
+    let cutoff_date = (date now) - ($keep_days * 1day)
+    
+    ls $backup_dir | where type == "file" and modified < $cutoff_date | each { |file|
+        rm $file.name
+        print $"Sauvegarde supprimée: ($file.name)"
+    }
+}
+
+# Alias pour les sauvegardes
+alias backup = backup
+alias cleanup = cleanup-backups
+```
+
+#### 🔹Monitoring système
+
+**Surveillance des processus :**
+
+```sh
+# Fonction de monitoring des processus en temps réel
+export def monitor-processes [--interval(-i): duration = 5sec, --top(-t): int = 10] {
+    while true {
+        clear
+        print $"=== Monitoring des processus - $(date now) ==="
+        
+        ps | where cpu > 0 | sort-by cpu -r | first $top | select name pid cpu mem | table
+        
+        sleep $interval
+    }
+}
+
+# Fonction de surveillance de la mémoire
+export def monitor-memory [--interval(-i): duration = 10sec] {
+    while true {
+        clear
+        print $"=== Surveillance de la mémoire - $(date now) ==="
+        
+        let mem_info = (ps | where name != "ps" | reduce -f 0 { |it, acc| $acc + $it.mem })
+        let mem_usage = ($mem_info | into filesize)
+        
+        print $"Utilisation mémoire totale: ($mem_usage)"
+        
+        ps | where mem > 100MB | sort-by mem -r | first 10 | select name pid mem | table
+        
+        sleep $interval
+    }
+}
+
+# Fonction de surveillance du disque
+export def monitor-disk [--interval(-i): duration = 30sec] {
+    while true {
+        clear
+        print $"=== Surveillance du disque - $(date now) ==="
+        
+        du | where physical > 1GB | sort-by physical -r | first 10 | select path physical apparent | table
+        
+        sleep $interval
+    }
+}
+
+# Alias pour le monitoring
+alias mon-proc = monitor-processes
+alias mon-mem = monitor-memory
+alias mon-disk = monitor-disk
+```
+
+**Surveillance du réseau :**
+
+```sh
+# Fonction de surveillance des connexions réseau
+export def monitor-network [--interval(-i): duration = 10sec] {
+    while true {
+        clear
+        print $"=== Surveillance réseau - $(date now) ==="
+        
+        # Connexions TCP
+        print "=== Connexions TCP ==="
+        netstat -tuln | lines | skip 2 | parse "{proto} {local} {foreign} {state}" | where proto == "tcp" | table
+        
+        # Connexions UDP
+        print "=== Connexions UDP ==="
+        netstat -tuln | lines | skip 2 | parse "{proto} {local} {foreign} {state}" | where proto == "udp" | table
+        
+        sleep $interval
+    }
+}
+
+# Fonction de test de connectivité
+export def test-connectivity [host: string, --port(-p): int = 80, --timeout(-t): int = 5] {
+    try {
+        let result = (run-external nc -z -w $timeout $host $port)
+        print $"✅ Connexion réussie vers ($host):($port)"
+        true
+    } catch {
+        print $"❌ Connexion échouée vers ($host):($port)"
+        false
+    }
+}
+
+# Fonction de ping avec statistiques
+export def ping-stats [host: string, --count(-c): int = 10] {
+    let ping_results = (1..$count | each { |i|
+        try {
+            let result = (run-external ping -c 1 $host --redirect-stdout)
+            let time = ($result | lines | where $it =~ "time=" | parse "time={time}ms" | get time.0 | into float)
+            {success: true, time: $time}
+        } catch {
+            {success: false, time: 0}
+        }
+    })
+    
+    let successful_pings = ($ping_results | where success == true)
+    let success_rate = (($successful_pings | length) / $count) * 100
+    let avg_time = if ($successful_pings | is-not-empty) {
+        ($successful_pings | get time | math avg)
+    } else {
+        0
+    }
+    
+    print $"Ping vers ($host):"
+    print $"  Taux de succès: ($success_rate)%"
+    print $"  Temps moyen: ($avg_time)ms"
+}
+
+# Alias pour le réseau
+alias mon-net = monitor-network
+alias ping = ping-stats
+alias test-conn = test-connectivity
+```
+
+**Surveillance des logs :**
+
+```sh
+# Fonction de surveillance des logs en temps réel
+export def tail-logs [log_file: string, --lines(-n): int = 50, --follow(-f): bool] {
+    if $follow {
+        tail -f -n $lines $log_file
+    } else {
+        tail -n $lines $log_file
+    }
+}
+
+# Fonction de recherche dans les logs
+export def search-logs [pattern: string, --file(-f): string, --since(-s): string] {
+    let grep_cmd = if $file != null {
+        $"grep -n '$pattern' $file"
+    } else {
+        $"grep -r -n '$pattern' /var/log/"
+    }
+    
+    if $since != null {
+        let since_date = ($since | into datetime)
+        # Logique pour filtrer par date
+    }
+    
+    run-external bash -c $grep_cmd
+}
+
+# Fonction d'analyse des logs d'erreur
+export def analyze-errors [log_file: string, --hours(-h): int = 24] {
+    let cutoff_time = (date now) - ($hours * 1hour)
+    
+    open $log_file | lines | where $it =~ "ERROR" | each { |line|
+        let timestamp = ($line | parse "{timestamp} {level} {message}" | get timestamp.0)
+        let error_time = ($timestamp | into datetime)
+        
+        if $error_time > $cutoff_time {
+            $line
+        }
+    } | group-by { |it| $it | parse "{timestamp} {level} {message}" | get message.0 } | transpose error count | sort-by count -r
+}
+
+# Alias pour les logs
+alias logs = tail-logs
+alias search-logs = search-logs
+alias errors = analyze-errors
+```
+
+**Tableau de bord système :**
+
+```sh
+# Fonction de tableau de bord complet
+export def system-dashboard [--refresh(-r): duration = 5sec] {
+    while true {
+        clear
+        print $"=== Tableau de bord système - $(date now) ==="
+        
+        # Informations système
+        print "=== Informations système ==="
+        print $"Utilisateur: ($env.USER)"
+        print $"Hôte: (hostname)"
+        print $"OS: ($env.OS)"
+        print $"Architecture: ($env.ARCH)"
+        
+        # Utilisation CPU et mémoire
+        print "=== Utilisation des ressources ==="
+        let top_processes = (ps | where cpu > 0 | sort-by cpu -r | first 5)
+        $top_processes | select name pid cpu mem | table
+        
+        # Utilisation du disque
+        print "=== Utilisation du disque ==="
+        du | where physical > 1GB | sort-by physical -r | first 5 | select path physical | table
+        
+        # Connexions réseau
+        print "=== Connexions réseau ==="
+        netstat -tuln | lines | skip 2 | parse "{proto} {local} {foreign} {state}" | group-by proto | transpose protocol count | table
+        
+        sleep $refresh
+    }
+}
+
+# Alias pour le tableau de bord
+alias dashboard = system-dashboard
+alias sysinfo = system-dashboard
+```
+
+> Ces outils de monitoring permettent de surveiller efficacement votre système et de détecter rapidement les problèmes de performance ou de sécurité.
+
+### 📊 Analyse de Données Avancée
+
+#### 🔹Statistiques descriptives
+
+**Fonctions de statistiques de base :**
+
+```sh
+# Fonction de statistiques complètes
+export def stats [data: list] {
+    let count = ($data | length)
+    let sum = ($data | reduce -f 0 { |it, acc| $acc + $it })
+    let mean = $sum / $count
+    let sorted = ($data | sort)
+    let median = if $count % 2 == 0 {
+        ($sorted | get ($count / 2 - 1) + ($sorted | get ($count / 2))) / 2
+    } else {
+        $sorted | get ($count / 2)
+    }
+    
+    let variance = ($data | each { |it| ($it - $mean) * ($it - $mean) } | math avg)
+    let std_dev = ($variance | math sqrt)
+    
+    let min = ($data | math min)
+    let max = ($data | math max)
+    let range = $max - $min
+    
+    {
+        count: $count,
+        sum: $sum,
+        mean: $mean,
+        median: $median,
+        std_dev: $std_dev,
+        variance: $variance,
+        min: $min,
+        max: $max,
+        range: $range
+    }
+}
+
+# Test avec des données
+let test_data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+stats $test_data
+```
+
+```sh
+╭─────────┬───────╮
+│ count   │    10 │
+│ sum     │    55 │
+│ mean    │   5.5 │
+│ median  │   5.5 │
+│ std_dev │ 3.028 │
+│ variance│ 9.167 │
+│ min     │     1 │
+│ max     │    10 │
+│ range   │     9 │
+╰─────────┴───────╯
+```
+
+**Analyse de distribution :**
+
+```sh
+# Fonction d'analyse de distribution
+export def distribution [data: list, --bins(-b): int = 10] {
+    let min_val = ($data | math min)
+    let max_val = ($data | math max)
+    let bin_width = ($max_val - $min_val) / $bins
+    
+    let bins = (0..($bins - 1) | each { |i|
+        let start = $min_val + ($i * $bin_width)
+        let end = $min_val + (($i + 1) * $bin_width)
+        let count = ($data | where $it >= $start and $it < $end | length)
+        
+        {
+            bin: $i + 1,
+            range: $"($start) - ($end)",
+            count: $count,
+            percentage: (($count / ($data | length)) * 100)
+        }
+    })
+    
+    $bins
+}
+
+# Test avec des données aléatoires
+let random_data = (1..100 | each { |i| (random integer 1..100) })
+distribution $random_data --bins 10
+```
+
+**Corrélation entre variables :**
+
+```sh
+# Fonction de calcul de corrélation
+export def correlation [x: list, y: list] {
+    let n = ($x | length)
+    let sum_x = ($x | reduce -f 0 { |it, acc| $acc + $it })
+    let sum_y = ($y | reduce -f 0 { |it, acc| $acc + $it })
+    let mean_x = $sum_x / $n
+    let mean_y = $sum_y / $n
+    
+    let sum_xy = ($x | zip $y | each { |pair| $pair.0 * $pair.1 } | reduce -f 0 { |it, acc| $acc + $it })
+    let sum_x2 = ($x | each { |it| $it * $it } | reduce -f 0 { |it, acc| $acc + $it })
+    let sum_y2 = ($y | each { |it| $it * $it } | reduce -f 0 { |it, acc| $acc + $it })
+    
+    let numerator = $sum_xy - ($n * $mean_x * $mean_y)
+    let denominator = (($sum_x2 - ($n * $mean_x * $mean_x)) * ($sum_y2 - ($n * $mean_y * $mean_y))) | math sqrt
+    
+    $numerator / $denominator
+}
+
+# Test de corrélation
+let x_data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+let y_data = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+correlation $x_data $y_data
+```
+
+#### 🔹Graphiques et visualisations
+
+**Graphiques ASCII simples :**
+
+```sh
+# Fonction de graphique en barres ASCII
+export def bar-chart [data: record, --width(-w): int = 50] {
+    let max_value = ($data | transpose key value | get value | math max)
+    
+    $data | transpose key value | each { |item|
+        let bar_length = (($item.value / $max_value) * $width) | into int
+        let bar = ("█" | str repeat $bar_length)
+        $"($item.key): ($bar) ($item.value)"
+    }
+}
+
+# Exemple d'utilisation
+let sales_data = {
+    "Jan": 100,
+    "Feb": 150,
+    "Mar": 120,
+    "Apr": 200,
+    "May": 180
+}
+
+bar-chart $sales_data --width 30
+```
+
+```sh
+Jan: ████████████████████████████████ 100
+Feb: ████████████████████████████████████████████████████ 150
+Mar: ████████████████████████████████████████████ 120
+Apr: █████████████████████████████████████████████████████████████████████████████ 200
+May: ████████████████████████████████████████████████████████████████████████ 180
+```
+
+**Graphique linéaire ASCII :**
+
+```sh
+# Fonction de graphique linéaire ASCII
+export def line-chart [data: list, --height(-h): int = 10] {
+    let max_value = ($data | math max)
+    let min_value = ($data | math min)
+    let range = $max_value - $min_value
+    
+    let chart_lines = (0..$height | each { |i|
+        let threshold = $max_value - (($i / $height) * $range)
+        let line = ($data | each { |value|
+            if $value >= $threshold { "●" } else { " " }
+        } | str join "")
+        $"($line) ($threshold | into string | str substring 0..6)"
+    })
+    
+    $chart_lines | reverse
+}
+
+# Exemple d'utilisation
+let trend_data = [10, 15, 12, 18, 25, 30, 28, 35, 40, 38, 45, 50]
+line-chart $trend_data --height 8
+```
+
+**Histogramme ASCII :**
+
+```sh
+# Fonction d'histogramme ASCII
+export def histogram [data: list, --bins(-b): int = 10] {
+    let min_val = ($data | math min)
+    let max_val = ($data | math max)
+    let bin_width = ($max_val - $min_val) / $bins
+    
+    let bins = (0..($bins - 1) | each { |i|
+        let start = $min_val + ($i * $bin_width)
+        let end = $min_val + (($i + 1) * $bin_width)
+        let count = ($data | where $it >= $start and $it < $end | length)
+        
+        {
+            range: $"($start | into string | str substring 0..4) - ($end | into string | str substring 0..4)",
+            count: $count
+        }
+    })
+    
+    let max_count = ($bins | get count | math max)
+    
+    $bins | each { |bin|
+        let bar_length = (($bin.count / $max_count) * 30) | into int
+        let bar = ("█" | str repeat $bar_length)
+        $"($bin.range): ($bar) ($bin.count)"
+    }
+}
+
+# Exemple d'utilisation
+let random_data = (1..100 | each { |i| (random integer 1..50) })
+histogram $random_data --bins 10
+```
+
+#### 🔹Export vers différents formats
+
+**Export vers CSV avec formatage :**
+
+```sh
+# Fonction d'export CSV formaté
+export def export-csv [data: table, output_file: string, --delimiter(-d): string = ","] {
+    let headers = ($data | columns | str join $delimiter)
+    let rows = ($data | each { |row|
+        $row | transpose key value | get value | str join $delimiter
+    })
+    
+    let csv_content = ([$headers] | append $rows | str join "\n")
+    $csv_content | save $output_file
+    
+    print $"Données exportées vers: ($output_file)"
+}
+
+# Exemple d'utilisation
+let sales_data = [
+    {month: "Jan", sales: 1000, profit: 200},
+    {month: "Feb", sales: 1200, profit: 250},
+    {month: "Mar", sales: 1100, profit: 220}
+]
+
+export-csv $sales_data "sales_report.csv"
+```
+
+**Export vers JSON structuré :**
+
+```sh
+# Fonction d'export JSON avec métadonnées
+export def export-json [data: table, output_file: string, --metadata(-m): record] {
+    let export_data = {
+        metadata: $metadata,
+        timestamp: (date now),
+        count: ($data | length),
+        data: $data
+    }
+    
+    $export_data | to json | save $output_file
+    print $"Données JSON exportées vers: ($output_file)"
+}
+
+# Exemple d'utilisation
+let analysis_metadata = {
+    title: "Analyse des ventes",
+    author: "Système d'analyse",
+    version: "1.0"
+}
+
+export-json $sales_data "sales_analysis.json" --metadata $analysis_metadata
+```
+
+**Export vers HTML avec graphiques :**
+
+```sh
+# Fonction d'export HTML avec graphiques
+export def export-html [data: table, output_file: string, --title(-t): string = "Rapport"] {
+    let html_content = $"
+<!DOCTYPE html>
+<html>
+<head>
+    <title>($title)</title>
+    <style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .chart { margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <h1>($title)</h1>
+    <p>Généré le: (date now)</p>
+    
+    <h2>Données</h2>
+    <table>
+        <tr>
+            ($data | columns | each { |col| $"<th>($col)</th>" } | str join "")
+        </tr>
+        ($data | each { |row|
+            $"<tr>($row | transpose key value | get value | each { |val| $"<td>($val)</td>" } | str join "")</tr>"
+        } | str join "")
+    </table>
+</body>
+</html>"
+    
+    $html_content | save $output_file
+    print $"Rapport HTML exporté vers: ($output_file)"
+}
+
+# Exemple d'utilisation
+export-html $sales_data "sales_report.html" --title "Rapport des ventes"
+```
+
+#### 🔹Manipulation de gros volumes de données
+
+**Traitement par chunks :**
+
+```sh
+# Fonction de traitement par chunks
+export def process-chunks [data: list, chunk_size: int, processor: closure] {
+    let chunks = ($data | window $chunk_size)
+    
+    $chunks | each { |chunk|
+        $processor $chunk
+    }
+}
+
+# Exemple de traitement de gros dataset
+def process-sales-chunk [chunk: list] {
+    $chunk | each { |sale|
+        {
+            month: $sale.month,
+            sales: $sale.sales,
+            profit: $sale.profit,
+            profit_margin: (($sale.profit / $sale.sales) * 100)
+        }
+    }
+}
+
+# Utilisation avec un gros dataset
+let large_sales_data = (1..10000 | each { |i| {
+    month: $"Month($i % 12 + 1)",
+    sales: (random integer 1000..5000),
+    profit: (random integer 100..500)
+}})
+
+process-chunks $large_sales_data 1000 { |chunk| process-sales-chunk $chunk }
+```
+
+**Filtrage efficace :**
+
+```sh
+# Fonction de filtrage avec index
+export def filter-indexed [data: table, condition: closure] {
+    let indexed_data = ($data | enumerate)
+    
+    $indexed_data | where { |item| $condition $item.item } | get item
+}
+
+# Exemple d'utilisation
+let large_dataset = (1..100000 | each { |i| {
+    id: $i,
+    value: (random integer 1..1000),
+    category: (["A", "B", "C"] | random choice)
+}})
+
+# Filtrage efficace
+filter-indexed $large_dataset { |item| $item.value > 500 and $item.category == "A" }
+```
+
+**Agrégation optimisée :**
+
+```sh
+# Fonction d'agrégation optimisée
+export def aggregate-optimized [data: table, group_by: string, aggregations: record] {
+    let grouped = ($data | group-by $group_by)
+    
+    $grouped | transpose key value | each { |group|
+        let group_data = $group.value
+        let result = { $group.key }
+        
+        $aggregations | transpose key value | each { |agg|
+            let field = $agg.key
+            let operation = $agg.value
+            
+            let agg_value = (match $operation {
+                "sum" => { $group_data | get $field | reduce -f 0 { |it, acc| $acc + $it } }
+                "avg" => { $group_data | get $field | math avg }
+                "count" => { $group_data | length }
+                "min" => { $group_data | get $field | math min }
+                "max" => { $group_data | get $field | math max }
+                _ => { 0 }
+            })
+            
+            $result | upsert $field $agg_value
+        }
+    }
+}
+
+# Exemple d'utilisation
+let sales_data = [
+    {category: "Electronics", sales: 1000, profit: 200},
+    {category: "Electronics", sales: 1500, profit: 300},
+    {category: "Clothing", sales: 800, profit: 150},
+    {category: "Clothing", sales: 1200, profit: 250}
+]
+
+aggregate-optimized $sales_data "category" {
+    sales: "sum",
+    profit: "sum",
+    count: "count"
+}
+```
+
+**Cache et optimisation :**
+
+```sh
+# Fonction de cache simple
+export def cached-computation [key: string, computation: closure] {
+    let cache_file = $"~/.cache/nushell/($key).json"
+    
+    if ($cache_file | path exists) {
+        try {
+            open $cache_file
+        } catch {
+            let result = ($computation)
+            $result | to json | save $cache_file
+            $result
+        }
+    } else {
+        let result = ($computation)
+        $result | to json | save $cache_file
+        $result
+    }
+}
+
+# Exemple d'utilisation
+cached-computation "expensive_calculation" { |it|
+    # Simulation d'un calcul coûteux
+    sleep 2sec
+    {result: "Calcul terminé", timestamp: (date now)}
+}
+```
+
+> L'analyse de données avancée avec NuShell permet de traiter efficacement de gros volumes de données tout en gardant une syntaxe claire et lisible.
