@@ -38,6 +38,16 @@ ls | columns
 ╰───┴──────────╯
 ```
 
+#### 🔹Connaître la taille d'un tableau
+
+```sh
+ls | length
+```
+
+```sh
+2
+```
+
 > Les commandes qui accèdent au système de fichiers sont héritées du bash: ``ls``, ``cp``, ``mv``, ``rm``...
 > L'opérateur ``columns`` reçoit un tableau et retourne la liste des colonnes qu'il contient.
 
@@ -816,7 +826,18 @@ $commandes | join $clients id_client
 ╰───┴───────────┴─────────┴─────────┴─────────┴──────────╯
 ```
 
-> NuShell supporte tous les types de jointures : [https://www.nushell.sh/commands/docs/join.html](https://www.nushell.sh/commands/docs/join.html).
+#### 🔹Noms de colonnes différents
+
+Quand les noms des colonnes de gauche et de droite ne sont pas les mêmes, la commande devient:
+
+```sh
+let users = open users.json
+let persons = open persons.json
+
+let data = $users | join $persons Id UserId
+```
+
+> NuShell supporte tous les types de jointures : [https://www.nushell.sh/commands/docs/join.html](https://www.nushell.sh/commands/docs/join.html). (--inner, --left, --right, --outer)
 
 ### ⚙️Intégration HTTP - API REST
 
@@ -2227,12 +2248,12 @@ $env.config = ($env.config | upsert hooks {
         # Mettre à jour le prompt avec des infos Git
         let git_branch = (try { git branch --show-current } catch { "" })
         let git_status = (try { git status --porcelain | lines | length } catch { 0 })
-        
+
         if ($git_branch | is-not-empty) {
             $env.PROMPT_COMMAND = $"($git_branch) ($git_status) > "
         }
     }]
-    
+
     pre_execution: [{
         # Logger les commandes exécutées
         let cmd = $env.HISTORY_FILE
@@ -2265,7 +2286,7 @@ alias du = du -h
 # env.nu
 def load-env-config [env_name: string] {
     let config_file = $"~/.config/nushell/env/($env_name).nu"
-    
+
     if ($config_file | path exists) {
         source $config_file
         print $"Configuration '$env_name' chargée"
@@ -2410,11 +2431,11 @@ def main [
 ] {
     let temp_dir = "/tmp"
     let cutoff_date = (date now) - ($age * 1day)
-    
+
     let old_files = (ls $temp_dir 
         | where type == "file" 
         | where modified < $cutoff_date)
-    
+
     if $dry_run {
         print "Mode simulation - fichiers qui seraient supprimés:"
         $old_files | select name modified
@@ -2450,22 +2471,22 @@ def main [
         print $"Traitement du fichier: ($input_file)"
         print $"Format de sortie: ($format)"
     }
-    
+
     let output_file = if $output != null {
         $output
     } else {
         ($input_file | path parse | get stem) + $".($format)"
     }
-    
+
     let data = (open $input_file)
-    
+
     match $format {
         "json" => { $data | to json | save $output_file }
         "csv" => { $data | to csv | save $output_file }
         "yaml" => { $data | to yaml | save $output_file }
         _ => { error make { msg: "Format non supporté" } }
     }
-    
+
     print $"Fichier sauvegardé: ($output_file)"
 }
 
@@ -2484,31 +2505,31 @@ main $args
 # scripts/tests.nu
 def test-math-functions [] {
     print "Test des fonctions mathématiques..."
-    
+
     # Test de la fonction add
     let result1 = (add 2 3)
     assert equal $result1 5 "Addition de 2 + 3"
-    
+
     # Test de la fonction multiply
     let result2 = (multiply 4 5)
     assert equal $result2 20 "Multiplication de 4 * 5"
-    
+
     print "Tous les tests mathématiques ont réussi!"
 }
 
 def test-file-operations [] {
     print "Test des opérations de fichiers..."
-    
+
     # Créer un fichier de test
     echo "test content" | save test-file.txt
-    
+
     # Tester la lecture
     let content = (open test-file.txt)
     assert equal $content "test content" "Lecture du fichier"
-    
+
     # Nettoyer
     rm test-file.txt
-    
+
     print "Tous les tests de fichiers ont réussi!"
 }
 
@@ -2535,7 +2556,7 @@ def run-all-tests [] {
 # scripts/validator.nu
 def validate-script [script_path: string] {
     print $"Validation du script: ($script_path)"
-    
+
     # Vérifier la syntaxe
     try {
         source $script_path
@@ -2544,7 +2565,7 @@ def validate-script [script_path: string] {
         print $"❌ Erreur de syntaxe: ($err)"
         return false
     }
-    
+
     # Vérifier les fonctions exportées
     let exported_functions = (scope commands | where is_exported == true)
     if ($exported_functions | is-empty) {
@@ -2552,7 +2573,7 @@ def validate-script [script_path: string] {
     } else {
         print $"✅ ($exported_functions | length) fonction(s) exportée(s)"
     }
-    
+
     # Vérifier la documentation
     let script_content = (open $script_path)
     if ($script_content | str contains "--help") {
@@ -2560,7 +2581,7 @@ def validate-script [script_path: string] {
     } else {
         print "⚠️  Documentation d'aide manquante"
     }
-    
+
     print "Validation terminée"
     true
 }
@@ -2576,11 +2597,13 @@ Les plugins étendent les capacités de NuShell avec de nouvelles commandes et f
 #### 🔹Où trouver les plugins
 
 **Sources principales :**
+
 - **crates.io** : [https://crates.io/search?q=nu_plugin](https://crates.io/search?q=nu_plugin)
 - **GitHub** : Rechercher `nu_plugin` dans les dépôts
 - **Documentation officielle** : [https://www.nushell.sh/plugins/](https://www.nushell.sh/plugins/)
 
 **Plugins populaires :**
+
 - `nu_plugin_polars` - Analyse de données avancée
 - `nu_plugin_query` - Requêtes SQL sur les données
 - `nu_plugin_formats` - Support de formats supplémentaires
@@ -2722,12 +2745,12 @@ inc --patch 1.2.3    # 1.2.4
 def bump-version [version_type: string] {
     let current_version = (open Cargo.toml | lines | where $it =~ "version" | parse "version = \"{version}\"" | get version.0)
     let new_version = (inc --$version_type $current_version)
-    
+
     print $"Version mise à jour: ($current_version) -> ($new_version)"
-    
+
     # Mettre à jour le fichier Cargo.toml
     open Cargo.toml | str replace $"version = \"($current_version)\"" $"version = \"($new_version)\"" | save Cargo.toml
-    
+
     # Créer un tag Git
     git add Cargo.toml
     git commit -m $"Bump version to ($new_version)"
@@ -3005,19 +3028,19 @@ def create_left_prompt [] {
     } else {
         $env.PWD
     }
-    
+
     let git_branch = (try {
         git branch --show-current
     } catch {
         ""
     })
-    
+
     let git_status = (try {
         git status --porcelain | lines | length
     } catch {
         0
     })
-    
+
     let git_info = if ($git_branch | is-not-empty) {
         if $git_status > 0 {
             $"($git_branch) *"
@@ -3027,10 +3050,10 @@ def create_left_prompt [] {
     } else {
         ""
     }
-    
+
     let user = $env.USER
     let host = (hostname)
-    
+
     $"($user)@($host) ($path_segment) ($git_info) > "
 }
 
@@ -3049,7 +3072,7 @@ $env.config = ($env.config | upsert hooks {
         let git_branch = (try { git branch --show-current } catch { "" })
         $env.GIT_BRANCH = $git_branch
     }]
-    
+
     pre_execution: [{
         # Logger les commandes
         let cmd = $env.HISTORY_FILE
@@ -3057,7 +3080,7 @@ $env.config = ($env.config | upsert hooks {
             echo $"$(date now) | $cmd" | save --append ~/.nushell/command_history.log
         }
     }]
-    
+
     env_change: {
         PWD: [{
             # Mettre à jour le titre de la fenêtre
@@ -3184,7 +3207,7 @@ export def switch-theme [theme_name: string] {
         "default" => { source ~/.config/nushell/themes/default.nu }
         _ => { print "Thème non trouvé. Thèmes disponibles: dark, light, default" }
     }
-    
+
     print $"Thème changé vers: ($theme_name)"
 }
 
@@ -3205,7 +3228,7 @@ export def git-status [] {
         let parts = ($line | split row " " | where $it != "")
         let status = $parts.0
         let file = $parts.1
-        
+
         {
             status: $status,
             file: $file,
@@ -3236,7 +3259,7 @@ export def git-branch-info [] {
     let current_branch = (git branch --show-current)
     let branches = (git branch -a | lines | each { |it| $it | str trim | str replace "remotes/origin/" "" })
     let remotes = (git remote -v | lines | each { |it| $it | split row " " | get 0 })
-    
+
     {
         current: $current_branch,
         local: ($branches | where not ($it | str contains "origin/")),
@@ -3344,7 +3367,7 @@ alias monitor = ./scripts/monitor.sh
 # config.nu
 def load-env-config [env_name: string] {
     let config_file = $"~/.config/nushell/env/($env_name).nu"
-    
+
     if ($config_file | path exists) {
         source $config_file
         print $"Configuration '$env_name' chargée"
@@ -3381,13 +3404,13 @@ export def switch-env [env_name: string] {
 export def --env smart-cd [path: string] {
     # Sauvegarder l'ancien répertoire
     let old_path = $env.PWD
-    
+
     # Changer de répertoire
     cd $path
-    
+
     # Ajouter à l'historique
     $env.DIR_HISTORY = ($env.DIR_HISTORY | default [] | append $old_path | last 50)
-    
+
     print $"Répertoire changé: ($old_path) -> ($env.PWD)"
 }
 
@@ -3404,7 +3427,7 @@ export def --env quick-cd [name: string] {
         "home" => "~",
         "root" => "/"
     }
-    
+
     if ($name in $quick_paths) {
         cd ($quick_paths | get $name)
         print $"Navigué vers: ($name) -> ($env.PWD)"
@@ -3464,7 +3487,7 @@ export def clean-path [path: string] {
 export def relative-path [target: string, base: string = $env.PWD] {
     let target_path = ($target | path expand)
     let base_path = ($base | path expand)
-    
+
     if ($target_path | str starts-with $base_path) {
         $target_path | str substring ($base_path | str length).. | str substring 1..
     } else {
@@ -3477,7 +3500,7 @@ export def mkdir-tree [structure: record] {
     $structure | transpose name children | each { |item|
         let dir_path = $item.name
         mkdir $dir_path
-        
+
         if ($item.children | is-not-empty) {
             cd $dir_path
             mkdir-tree $item.children
@@ -3511,7 +3534,7 @@ export def compress [input: string, --output(-o): string, --format(-f): string =
     } else {
         ($input | path parse | get stem) + $".($format)"
     }
-    
+
     match $format {
         "zip" => { zip -r $output_file $input }
         "tar" => { tar -cf $output_file $input }
@@ -3520,7 +3543,7 @@ export def compress [input: string, --output(-o): string, --format(-f): string =
         "7z" => { 7z a $output_file $input }
         _ => { error make { msg: "Format non supporté" } }
     }
-    
+
     print $"Archive créée: ($output_file)"
 }
 
@@ -3531,10 +3554,10 @@ export def extract [archive: string, --output(-o): string] {
     } else {
         $archive | path parse | get stem
     }
-    
+
     mkdir $output_dir
     cd $output_dir
-    
+
     let ext = ($archive | path parse | get extension)
     match $ext {
         "zip" => { unzip $archive }
@@ -3544,7 +3567,7 @@ export def extract [archive: string, --output(-o): string] {
         "7z" => { 7z x $archive }
         _ => { error make { msg: "Format d'archive non supporté" } }
     }
-    
+
     print $"Archive extraite dans: ($output_dir)"
 }
 
@@ -3564,10 +3587,10 @@ export def backup [source: string, --destination(-d): string = "~/backups"] {
     let source_name = ($source | path parse | get stem)
     let backup_name = $"($source_name)_($timestamp).tar.gz"
     let backup_path = ($destination | path join $backup_name)
-    
+
     mkdir $destination
     tar -czf $backup_path $source
-    
+
     print $"Sauvegarde créée: ($backup_path)"
     print $"Taille: (($backup_path | ls | get size.0) | into filesize)"
 }
@@ -3575,7 +3598,7 @@ export def backup [source: string, --destination(-d): string = "~/backups"] {
 # Fonction de nettoyage des sauvegardes anciennes
 export def cleanup-backups [backup_dir: string = "~/backups", --keep-days(-k): int = 30] {
     let cutoff_date = (date now) - ($keep_days * 1day)
-    
+
     ls $backup_dir | where type == "file" and modified < $cutoff_date | each { |file|
         rm $file.name
         print $"Sauvegarde supprimée: ($file.name)"
@@ -3597,9 +3620,9 @@ export def monitor-processes [--interval(-i): duration = 5sec, --top(-t): int = 
     while true {
         clear
         print $"=== Monitoring des processus - $(date now) ==="
-        
+
         ps | where cpu > 0 | sort-by cpu -r | first $top | select name pid cpu mem | table
-        
+
         sleep $interval
     }
 }
@@ -3609,14 +3632,14 @@ export def monitor-memory [--interval(-i): duration = 10sec] {
     while true {
         clear
         print $"=== Surveillance de la mémoire - $(date now) ==="
-        
+
         let mem_info = (ps | where name != "ps" | reduce -f 0 { |it, acc| $acc + $it.mem })
         let mem_usage = ($mem_info | into filesize)
-        
+
         print $"Utilisation mémoire totale: ($mem_usage)"
-        
+
         ps | where mem > 100MB | sort-by mem -r | first 10 | select name pid mem | table
-        
+
         sleep $interval
     }
 }
@@ -3626,9 +3649,9 @@ export def monitor-disk [--interval(-i): duration = 30sec] {
     while true {
         clear
         print $"=== Surveillance du disque - $(date now) ==="
-        
+
         du | where physical > 1GB | sort-by physical -r | first 10 | select path physical apparent | table
-        
+
         sleep $interval
     }
 }
@@ -3647,15 +3670,15 @@ export def monitor-network [--interval(-i): duration = 10sec] {
     while true {
         clear
         print $"=== Surveillance réseau - $(date now) ==="
-        
+
         # Connexions TCP
         print "=== Connexions TCP ==="
         netstat -tuln | lines | skip 2 | parse "{proto} {local} {foreign} {state}" | where proto == "tcp" | table
-        
+
         # Connexions UDP
         print "=== Connexions UDP ==="
         netstat -tuln | lines | skip 2 | parse "{proto} {local} {foreign} {state}" | where proto == "udp" | table
-        
+
         sleep $interval
     }
 }
@@ -3683,7 +3706,7 @@ export def ping-stats [host: string, --count(-c): int = 10] {
             {success: false, time: 0}
         }
     })
-    
+
     let successful_pings = ($ping_results | where success == true)
     let success_rate = (($successful_pings | length) / $count) * 100
     let avg_time = if ($successful_pings | is-not-empty) {
@@ -3691,7 +3714,7 @@ export def ping-stats [host: string, --count(-c): int = 10] {
     } else {
         0
     }
-    
+
     print $"Ping vers ($host):"
     print $"  Taux de succès: ($success_rate)%"
     print $"  Temps moyen: ($avg_time)ms"
@@ -3722,23 +3745,23 @@ export def search-logs [pattern: string, --file(-f): string, --since(-s): string
     } else {
         $"grep -r -n '$pattern' /var/log/"
     }
-    
+
     if $since != null {
         let since_date = ($since | into datetime)
         # Logique pour filtrer par date
     }
-    
+
     run-external bash -c $grep_cmd
 }
 
 # Fonction d'analyse des logs d'erreur
 export def analyze-errors [log_file: string, --hours(-h): int = 24] {
     let cutoff_time = (date now) - ($hours * 1hour)
-    
+
     open $log_file | lines | where $it =~ "ERROR" | each { |line|
         let timestamp = ($line | parse "{timestamp} {level} {message}" | get timestamp.0)
         let error_time = ($timestamp | into datetime)
-        
+
         if $error_time > $cutoff_time {
             $line
         }
@@ -3759,27 +3782,27 @@ export def system-dashboard [--refresh(-r): duration = 5sec] {
     while true {
         clear
         print $"=== Tableau de bord système - $(date now) ==="
-        
+
         # Informations système
         print "=== Informations système ==="
         print $"Utilisateur: ($env.USER)"
         print $"Hôte: (hostname)"
         print $"OS: ($env.OS)"
         print $"Architecture: ($env.ARCH)"
-        
+
         # Utilisation CPU et mémoire
         print "=== Utilisation des ressources ==="
         let top_processes = (ps | where cpu > 0 | sort-by cpu -r | first 5)
         $top_processes | select name pid cpu mem | table
-        
+
         # Utilisation du disque
         print "=== Utilisation du disque ==="
         du | where physical > 1GB | sort-by physical -r | first 5 | select path physical | table
-        
+
         # Connexions réseau
         print "=== Connexions réseau ==="
         netstat -tuln | lines | skip 2 | parse "{proto} {local} {foreign} {state}" | group-by proto | transpose protocol count | table
-        
+
         sleep $refresh
     }
 }
@@ -3809,14 +3832,14 @@ export def stats [data: list] {
     } else {
         $sorted | get ($count / 2)
     }
-    
+
     let variance = ($data | each { |it| ($it - $mean) * ($it - $mean) } | math avg)
     let std_dev = ($variance | math sqrt)
-    
+
     let min = ($data | math min)
     let max = ($data | math max)
     let range = $max - $min
-    
+
     {
         count: $count,
         sum: $sum,
@@ -3857,12 +3880,12 @@ export def distribution [data: list, --bins(-b): int = 10] {
     let min_val = ($data | math min)
     let max_val = ($data | math max)
     let bin_width = ($max_val - $min_val) / $bins
-    
+
     let bins = (0..($bins - 1) | each { |i|
         let start = $min_val + ($i * $bin_width)
         let end = $min_val + (($i + 1) * $bin_width)
         let count = ($data | where $it >= $start and $it < $end | length)
-        
+
         {
             bin: $i + 1,
             range: $"($start) - ($end)",
@@ -3870,7 +3893,7 @@ export def distribution [data: list, --bins(-b): int = 10] {
             percentage: (($count / ($data | length)) * 100)
         }
     })
-    
+
     $bins
 }
 
@@ -3889,14 +3912,14 @@ export def correlation [x: list, y: list] {
     let sum_y = ($y | reduce -f 0 { |it, acc| $acc + $it })
     let mean_x = $sum_x / $n
     let mean_y = $sum_y / $n
-    
+
     let sum_xy = ($x | zip $y | each { |pair| $pair.0 * $pair.1 } | reduce -f 0 { |it, acc| $acc + $it })
     let sum_x2 = ($x | each { |it| $it * $it } | reduce -f 0 { |it, acc| $acc + $it })
     let sum_y2 = ($y | each { |it| $it * $it } | reduce -f 0 { |it, acc| $acc + $it })
-    
+
     let numerator = $sum_xy - ($n * $mean_x * $mean_y)
     let denominator = (($sum_x2 - ($n * $mean_x * $mean_x)) * ($sum_y2 - ($n * $mean_y * $mean_y))) | math sqrt
-    
+
     $numerator / $denominator
 }
 
@@ -3914,7 +3937,7 @@ correlation $x_data $y_data
 # Fonction de graphique en barres ASCII
 export def bar-chart [data: record, --width(-w): int = 50] {
     let max_value = ($data | transpose key value | get value | math max)
-    
+
     $data | transpose key value | each { |item|
         let bar_length = (($item.value / $max_value) * $width) | into int
         let bar = ("█" | str repeat $bar_length)
@@ -3950,7 +3973,7 @@ export def line-chart [data: list, --height(-h): int = 10] {
     let max_value = ($data | math max)
     let min_value = ($data | math min)
     let range = $max_value - $min_value
-    
+
     let chart_lines = (0..$height | each { |i|
         let threshold = $max_value - (($i / $height) * $range)
         let line = ($data | each { |value|
@@ -3958,7 +3981,7 @@ export def line-chart [data: list, --height(-h): int = 10] {
         } | str join "")
         $"($line) ($threshold | into string | str substring 0..6)"
     })
-    
+
     $chart_lines | reverse
 }
 
@@ -3975,20 +3998,20 @@ export def histogram [data: list, --bins(-b): int = 10] {
     let min_val = ($data | math min)
     let max_val = ($data | math max)
     let bin_width = ($max_val - $min_val) / $bins
-    
+
     let bins = (0..($bins - 1) | each { |i|
         let start = $min_val + ($i * $bin_width)
         let end = $min_val + (($i + 1) * $bin_width)
         let count = ($data | where $it >= $start and $it < $end | length)
-        
+
         {
             range: $"($start | into string | str substring 0..4) - ($end | into string | str substring 0..4)",
             count: $count
         }
     })
-    
+
     let max_count = ($bins | get count | math max)
-    
+
     $bins | each { |bin|
         let bar_length = (($bin.count / $max_count) * 30) | into int
         let bar = ("█" | str repeat $bar_length)
@@ -4012,10 +4035,10 @@ export def export-csv [data: table, output_file: string, --delimiter(-d): string
     let rows = ($data | each { |row|
         $row | transpose key value | get value | str join $delimiter
     })
-    
+
     let csv_content = ([$headers] | append $rows | str join "\n")
     $csv_content | save $output_file
-    
+
     print $"Données exportées vers: ($output_file)"
 }
 
@@ -4040,7 +4063,7 @@ export def export-json [data: table, output_file: string, --metadata(-m): record
         count: ($data | length),
         data: $data
     }
-    
+
     $export_data | to json | save $output_file
     print $"Données JSON exportées vers: ($output_file)"
 }
@@ -4075,7 +4098,7 @@ export def export-html [data: table, output_file: string, --title(-t): string = 
 <body>
     <h1>($title)</h1>
     <p>Généré le: (date now)</p>
-    
+
     <h2>Données</h2>
     <table>
         <tr>
@@ -4087,7 +4110,7 @@ export def export-html [data: table, output_file: string, --title(-t): string = 
     </table>
 </body>
 </html>"
-    
+
     $html_content | save $output_file
     print $"Rapport HTML exporté vers: ($output_file)"
 }
@@ -4104,7 +4127,7 @@ export-html $sales_data "sales_report.html" --title "Rapport des ventes"
 # Fonction de traitement par chunks
 export def process-chunks [data: list, chunk_size: int, processor: closure] {
     let chunks = ($data | window $chunk_size)
-    
+
     $chunks | each { |chunk|
         $processor $chunk
     }
@@ -4138,7 +4161,7 @@ process-chunks $large_sales_data 1000 { |chunk| process-sales-chunk $chunk }
 # Fonction de filtrage avec index
 export def filter-indexed [data: table, condition: closure] {
     let indexed_data = ($data | enumerate)
-    
+
     $indexed_data | where { |item| $condition $item.item } | get item
 }
 
@@ -4159,15 +4182,15 @@ filter-indexed $large_dataset { |item| $item.value > 500 and $item.category == "
 # Fonction d'agrégation optimisée
 export def aggregate-optimized [data: table, group_by: string, aggregations: record] {
     let grouped = ($data | group-by $group_by)
-    
+
     $grouped | transpose key value | each { |group|
         let group_data = $group.value
         let result = { $group.key }
-        
+
         $aggregations | transpose key value | each { |agg|
             let field = $agg.key
             let operation = $agg.value
-            
+
             let agg_value = (match $operation {
                 "sum" => { $group_data | get $field | reduce -f 0 { |it, acc| $acc + $it } }
                 "avg" => { $group_data | get $field | math avg }
@@ -4176,7 +4199,7 @@ export def aggregate-optimized [data: table, group_by: string, aggregations: rec
                 "max" => { $group_data | get $field | math max }
                 _ => { 0 }
             })
-            
+
             $result | upsert $field $agg_value
         }
     }
@@ -4203,7 +4226,7 @@ aggregate-optimized $sales_data "category" {
 # Fonction de cache simple
 export def cached-computation [key: string, computation: closure] {
     let cache_file = $"~/.cache/nushell/($key).json"
-    
+
     if ($cache_file | path exists) {
         try {
             open $cache_file
