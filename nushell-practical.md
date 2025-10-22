@@ -237,6 +237,136 @@ $net_data | where local =~ 127.0.0.1 and foreign =~ 127.0.0.1
 ╰────┴───────┴─────────────────┴─────────────────┴─────────────╯
 ```
 
+#### 🔹Quelques commandes utiles
+
+```first <n>```, pour extraire les *n* premières lignes d'un tableau
+
+```sh
+ls | first
+```
+```sh
+╭──────────┬──────────────╮
+│ name     │ .aitk        │
+│ type     │ dir          │
+│ size     │ 4,0 kB       │
+│ modified │ 4 months ago │
+╰──────────┴──────────────╯
+```
+
+```sh
+ls | first 5
+```
+```sh
+╭───┬───────────────┬──────┬────────┬──────────────╮
+│ # │     name      │ type │  size  │   modified   │
+├───┼───────────────┼──────┼────────┼──────────────┤
+│ 0 │ .aitk         │ dir  │ 4,0 kB │ 4 months ago │
+│ 1 │ .atom         │ dir  │ 4,0 kB │ 8 months ago │
+│ 2 │ .aws          │ dir  │    0 B │ 8 months ago │
+│ 3 │ .azure        │ dir  │    0 B │ 8 months ago │
+│ 4 │ .bash_history │ file │  698 B │ 3 weeks ago  │
+╰───┴───────────────┴──────┴────────┴──────────────╯
+```
+
+```last <n>```, pour extraire les *n* dernières lignes d'un tableau
+
+```sh
+ls | last
+```
+```sh
+╭──────────┬────────────╮
+│ name     │ source     │
+│ type     │ dir        │
+│ size     │ 4,0 kB     │
+│ modified │ a week ago │
+╰──────────┴────────────╯
+```
+
+```sh
+ls | last 5
+```
+```sh
+╭───┬───────────────┬──────┬────────┬───────────────╮
+│ # │     name      │ type │  size  │   modified    │
+├───┼───────────────┼──────┼────────┼───────────────┤
+│ 0 │ lpm           │ dir  │    0 B │ a month ago   │
+│ 1 │ mercurial.ini │ file │   74 B │ 3 months ago  │
+│ 2 │ mulesoft      │ dir  │ 4,0 kB │ 10 months ago │
+│ 3 │ scoop         │ dir  │    0 B │ a year ago    │
+│ 4 │ source        │ dir  │ 4,0 kB │ a week ago    │
+╰───┴───────────────┴──────┴────────┴───────────────╯
+```
+
+```transpose```
+
+- pour transposer un tableau
+```sh
+ls | first 3 | transpose
+```
+```sh
+╭───┬──────────┬──────────────┬──────────────┬──────────────╮
+│ # │ column0  │   column1    │   column2    │   column3    │
+├───┼──────────┼──────────────┼──────────────┼──────────────┤
+│ 0 │ name     │ .aitk        │ .atom        │ .aws         │
+│ 1 │ type     │ dir          │ dir          │ dir          │
+│ 2 │ size     │       4,0 kB │       4,0 kB │          0 B │
+│ 3 │ modified │ 4 months ago │ 8 months ago │ 8 months ago │
+╰───┴──────────┴──────────────┴──────────────┴──────────────╯
+```
+
+- pour transformer une structure en tableau
+
+Si on regarde ce que retourne ```ls | first```, on voit que ce n'est pas un tableau (les colonnes n'ont pas de nom). Pour remédier à cela, on peut utiliser ```transpose```.
+```sh
+ls | first | transpose
+```
+```sh
+╭───┬──────────┬──────────────╮
+│ # │ column0  │   column1    │
+├───┼──────────┼──────────────┤
+│ 0 │ name     │ .aitk        │
+│ 1 │ type     │ dir          │
+│ 2 │ size     │       4,0 kB │
+│ 3 │ modified │ 4 months ago │
+╰───┴──────────┴──────────────╯
+```
+
+On peut aussi donner un nom plus explicite au colonnes.
+```sh $
+ls | first | transpose nom extension
+```
+```sh
+╭───┬──────────┬──────────────╮
+│ # │   nom    │  extension   │
+├───┼──────────┼──────────────┤
+│ 0 │ name     │ .aitk        │
+│ 1 │ type     │ dir          │
+│ 2 │ size     │       4,0 kB │
+│ 3 │ modified │ 4 months ago │
+╰───┴──────────┴──────────────╯
+```
+
+Cas d'usage de ```transpose``` : afficher les variables d'environnement filtrées selon un critère.
+```sh
+$env | transpose clé valeur | where clé =~ '(?i)term'
+```
+```sh
+╭───┬────────────────────────┬─────────────────────────────────────────────────────╮
+│ # │          clé           │                       valeur                        │
+├───┼────────────────────────┼─────────────────────────────────────────────────────┤
+│ 0 │ COLORTERM              │ truecolor                                           │
+│ 1 │ TERM                   │ xterm-256color                                      │
+│ 2 │ TERM_PROGRAM           │ WezTerm                                             │
+│ 3 │ TERM_PROGRAM_VERSION   │ 20251005-110037-db5d7437                            │
+│ 4 │ WEZTERM_CONFIG_DIR     │ D:\Users\kinnar\.config\wezterm                     │
+│ 5 │ WEZTERM_CONFIG_FILE    │ D:\Users\kinnar\.config\wezterm\wezterm.lua         │
+│ 6 │ WEZTERM_EXECUTABLE     │ C:\Program Files\WezTerm\wezterm-gui.exe            │
+│ 7 │ WEZTERM_EXECUTABLE_DIR │ C:\Program Files\WezTerm                            │
+│ 8 │ WEZTERM_PANE           │ 1                                                   │
+│ 9 │ WEZTERM_UNIX_SOCKET    │ D:\Users\kinnar\.local/share/wezterm\gui-sock-40160 │
+╰───┴────────────────────────┴─────────────────────────────────────────────────────╯
+```
+
 ### 📁 Ouvertures de fichiers
 
 #### 🔹 Ouvrir un fichier texte
@@ -1906,6 +2036,45 @@ Répertoire changé vers: /tmp
 
 > `def --env` permet à la commande de modifier l'environnement du shell appelant. Sans cela, les changements d'environnement sont limités au scope de la commande.
 
+#### 🔹Quand utiliser `def --env` ?
+
+**Utilisez `def --env` quand votre fonction doit :**
+- Changer le répertoire de travail (`cd`)
+- Modifier des variables d'environnement qui doivent persister
+- Créer des alias ou des fonctions temporaires
+- Configurer l'environnement pour la session
+
+**Exemple pratique : Navigation vers les repos**
+
+```sh
+# scripts/go-to-repos.nu
+def --env repos [subpath? : string] {
+  mut real_path = $env.repos
+
+  if ($subpath != null and $subpath != '') {
+    $real_path = ($real_path | path join $subpath)
+  }
+
+  cd $real_path
+}
+```
+
+**Utilisation :**
+```sh
+# Définir la variable d'environnement
+$env.repos = "D:\Users\kinnar\source\repos"
+
+# Charger le script
+source scripts/go-to-repos.nu
+
+# Utiliser la fonction
+repos                    # Va vers D:\Users\kinnar\source\repos
+repos n2f               # Va vers D:\Users\kinnar\source\repos\n2f
+repos "autre-projet"    # Va vers D:\Users\kinnar\source\repos\autre-projet
+```
+
+**⚠️ Important :** Sans `--env`, la fonction `cd` ne changerait pas le répertoire de la session parente !
+
 #### 🔹Créer une commande complexe avec gestion d'erreurs
 
 ```sh
@@ -2229,7 +2398,7 @@ export def edit-config [
 def "config-files" [] {
     [
         "config.nu"
-        "env.nu" 
+        "env.nu"
         "login.nu"
         "theme.nu"
     ]
@@ -2432,8 +2601,8 @@ def main [
     let temp_dir = "/tmp"
     let cutoff_date = (date now) - ($age * 1day)
 
-    let old_files = (ls $temp_dir 
-        | where type == "file" 
+    let old_files = (ls $temp_dir
+        | where type == "file"
         | where modified < $cutoff_date)
 
     if $dry_run {
@@ -2536,8 +2705,8 @@ def test-file-operations [] {
 # Fonction d'assertion simple
 def assert equal [actual: any, expected: any, message: string] {
     if $actual != $expected {
-        error make { 
-            msg: $"Test échoué: ($message). Attendu: ($expected), Obtenu: ($actual)" 
+        error make {
+            msg: $"Test échoué: ($message). Attendu: ($expected), Obtenu: ($actual)"
         }
     }
 }
