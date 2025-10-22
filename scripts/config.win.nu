@@ -19,22 +19,12 @@
 
 $env.config.show_banner = false
 $env.config.buffer_editor = 'nvim'
+$env.source = 'd:/Users/kinnar/source/'
+$env.repos = 'd:/Users/kinnar/source/repos/'
+$env.note = 'd:/Users/kinnar/iCloudDrive/Documents/Notes/'
 
-# Détection du système d'exploitation et configuration des chemins
-let os = $nu.os-info.name
-if $os == "windows" {
-    $env.source = 'd:/Users/kinnar/source/'
-    $env.repos = 'd:/Users/kinnar/source/repos/'
-    $env.note = 'd:/Users/kinnar/iCloudDrive/Documents/Notes/'
-    $env.scripts_path = 'd:/Users/kinnar/source/repos/nu/scripts/'
-} else if $os == "macos" {
-    $env.source = '/Users/kinnar/source/'
-    $env.repos = '/Users/kinnar/source/repos/'
-    $env.note = '/Users/kinnar/iCloudDrive/Documents/Notes/'
-    $env.scripts_path = '/Users/kinnar/source/repos/nu/scripts/'
-} else if $os == "linux" {
-    # TODO: Add Linux support
-}
+$env.GD_USERNAME = 'ICT|IRIS'
+$env.GD_PASSWORD = 'ICT4Geo'
 
 # Load starship
 mkdir ($nu.data-dir | path join "vendor/autoload")
@@ -46,18 +36,17 @@ starship init nu | save -f ($nu.data-dir | path join "vendor/autoload/starship.n
 # alias cd = z
 # alias cdi = zoxide query --interactive
 
-# Load scripts with hardcoded paths for now
-if $os == "windows" {
-    source d:/Users/kinnar/source/repos/nu/scripts/sql-server-iris.nu
-    source d:/Users/kinnar/source/repos/nu/scripts/load-dotenv.nu
-    source d:/Users/kinnar/source/repos/nu/scripts/silent-spawn.nu
-} else if $os == "macos" {
-    source /Users/kinnar/source/repos/nu/scripts/sql-server-iris.nu
-    source /Users/kinnar/source/repos/nu/scripts/load-dotenv.nu
-    source /Users/kinnar/source/repos/nu/scripts/silent-spawn.nu
-} else if $os == "linux" {
-    # TODO: Add Linux support
-}
+# Load IRIS Sql Server function
+source d:/Users/kinnar/source/repos/nu/scripts/sql-server-iris.nu
+
+# Load IRIS load-dotenv function
+source d:/Users/kinnar/source/repos/nu/scripts/load-dotenv.nu
+
+# Load silent_spawn function
+source d:/Users/kinnar/source/repos/nu/scripts/silent-spawn.nu
+
+# Load go-to-repos function
+source d:/Users/kinnar/source/repos/nu/scripts/go-to-repos.nu
 
 # BAT alias
 alias bat = bat --theme="Catppuccin Mocha"
