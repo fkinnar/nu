@@ -14,7 +14,7 @@ NuShell dispose d'un système d'aide très complet directement accessible dans l
 help commands
 ```
 
-> 💡 **Astuce :** C'est l'équivalent de la [page des commandes](https://www.nushell.sh/commands/) mais directement dans votre terminal ! Pour des techniques de recherche avancées, voir l'[appendice sur la découverte de commandes](#-découverte-de-commandes).
+> 💡 **Astuce :** C'est l'équivalent de la [page des commandes](https://www.nushell.sh/commands/) mais directement dans votre terminal ! Pour des techniques de recherche avancées, voir l'[guide des appendices](nushell-appendices.md).
 
 ### 🔢 Les tableaux en mémoire
 
@@ -249,7 +249,7 @@ $net_data | where local =~ 127.0.0.1 and foreign =~ 127.0.0.1
 
 #### 🔹Quelques commandes utiles
 
-```first <n>```, pour extraire les *n* premières lignes d'un tableau
+``first <n>``, pour extraire les *n* premières lignes d'un tableau
 
 ```sh
 ls | first
@@ -280,7 +280,7 @@ ls | first 5
 ╰───┴───────────────┴──────┴────────┴──────────────╯
 ```
 
-```last <n>```, pour extraire les *n* dernières lignes d'un tableau
+``last <n>``, pour extraire les *n* dernières lignes d'un tableau
 
 ```sh
 ls | last
@@ -311,7 +311,7 @@ ls | last 5
 ╰───┴───────────────┴──────┴────────┴───────────────╯
 ```
 
-```transpose```
+``transpose``
 
 - pour transposer un tableau
 
@@ -332,7 +332,7 @@ ls | first 3 | transpose
 
 - pour transformer une structure en tableau
 
-Si on regarde ce que retourne ```ls | first```, on voit que ce n'est pas un tableau (les colonnes n'ont pas de nom). Pour remédier à cela, on peut utiliser ```transpose```.
+Si on regarde ce que retourne ``ls | first``, on voit que ce n'est pas un tableau (les colonnes n'ont pas de nom). Pour remédier à cela, on peut utiliser ``transpose``.
 
 ```sh
 ls | first | transpose
@@ -351,7 +351,7 @@ ls | first | transpose
 
 On peut aussi donner un nom plus explicite au colonnes.
 
-```sh $
+```sh
 ls | first | transpose nom extension
 ```
 
@@ -366,7 +366,7 @@ ls | first | transpose nom extension
 ╰───┴──────────┴──────────────╯
 ```
 
-Cas d'usage de ```transpose``` : afficher les variables d'environnement filtrées selon un critère.
+Cas d'usage de ``transpose`` : afficher les variables d'environnement filtrées selon un critère.
 
 ```sh
 $env | transpose clé valeur | where clé =~ '(?i)term'
@@ -4447,57 +4447,16 @@ cached-computation "expensive_calculation" { |it|
 
 ---
 
-## 📚 Appendices
+## 📚 Ressources supplémentaires
 
-### 🔍 Découverte de commandes
+### 🔍 Techniques avancées
 
-Une fois que vous maîtrisez les bases de NuShell, voici des techniques avancées pour découvrir et rechercher des commandes :
+Pour des techniques avancées, des plugins détaillés et des exemples complexes, consultez le [guide des appendices](nushell-appendices.md) :
 
-#### 🔹Rechercher des commandes par nom
+- **Découverte de commandes** - Techniques de recherche avancées
+- **Plugins détaillés** - Installation, configuration et exemples pratiques
+- **Optimisation des performances** - Traitement de gros volumes de données
+- **Scripts complexes** - Gestion d'erreurs et configuration dynamique
+- **Ressources communautaires** - Documentation et plugins populaires
 
-```sh
-# Chercher toutes les commandes contenant "transpose"
-help commands | where $it.name =~ "transpose"
-
-# Chercher les commandes de filtrage
-help commands | where $it.name =~ "filter|where|select"
-```
-
-#### 🔹Rechercher par description/fonctionnalité
-
-```sh
-# Chercher les commandes qui mentionnent "table" dans leur description
-help commands | where $it.usage =~ "table"
-
-# Chercher les commandes pour les fichiers
-help commands | where $it.usage =~ "file"
-```
-
-#### 🔹Explorer par catégorie
-
-```sh
-# Voir toutes les catégories disponibles
-help commands | get category | uniq
-
-# Filtrer par catégorie
-help commands | where category == "filters"
-help commands | where category == "strings"
-help commands | where category == "filesystem"
-```
-
-#### 🔹Créer un alias de recherche pratique
-
-```sh
-alias search-cmd = help commands | where ($it.name =~ $in) or ($it.usage =~ $in)
-
-# Utilisation
-"transpose" | search-cmd
-"file" | search-cmd
-```
-
-#### 🔹Recherche combinée (nom + description)
-
-```sh
-# Chercher dans le nom ET la description
-help commands | where ($it.name =~ "transpose") or ($it.usage =~ "transpose")
-```
+> 💡 **Astuce :** Le guide principal se concentre sur l'essentiel. Les appendices couvrent les aspects avancés pour les utilisateurs expérimentés.
