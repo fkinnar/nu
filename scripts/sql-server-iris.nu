@@ -95,7 +95,7 @@ export def "query-sql-server" [
     let sqlcmd_args = ([
         "-S", $server,
         "-d", $database,
-        "-b", "-W", "-s", ",", "-k", "1", "-Q", $query,
+        "-b", "-W", "-s", "|", "-k", "1", "-Q", $query,
         "-f", "65001"  # Force l'encodage UTF-8
     ] ++ $auth_args)
 
@@ -106,18 +106,45 @@ export def "query-sql-server" [
         error make { msg: "Erreur lors de l'exécution de sqlcmd. Vérifiez vos credentials, permissions ou la connectivité au serveur." }
     })
 
-    # Nettoie la sortie et la convertit en CSV
-    let cleaned_lines = ($raw_output | lines | where { |it| not ($it | str starts-with "-") and not ($it | str starts-with "(") and not ($it | is-empty) and not ($it | str starts-with "Changed database context") and not ($it | str contains "Login failed") and not ($it | str contains "Access denied") })
+    # Convertit la sortie en string
+    let raw_output_str = try {
+        $raw_output | decode utf-8
+    } catch {
+        $raw_output
+    }
+
+    # Nettoie la sortie étape par étape
+    let step1 = ($raw_output_str | lines | where { |it| not ($it | str starts-with "-") })
+    let step2 = ($step1 | where { |it| not ($it | str starts-with "(") })
+    let step3 = ($step2 | where { |it| not ($it | is-empty) })
+    let step4 = ($step3 | where { |it| not ($it | str starts-with "Changed database context") })
+    let step5 = ($step4 | where { |it| not ($it | str contains "Login failed") })
+    let step6 = ($step5 | where { |it| not ($it | str contains "Access denied") })
+    let cleaned_lines = ($step6 | where { |it| not ($it | str contains "DelimiterError") })
 
     # Vérifie s'il y a des messages d'erreur dans la sortie
-    let error_lines = ($raw_output | lines | where { |it| ($it | str contains "Login failed") or ($it | str contains "Access denied") or ($it | str contains "permission") or ($it | str contains "denied") })
+    let error_lines = ($raw_output_str | lines | where { |it| ($it | str contains "Login failed") or ($it | str contains "Access denied") or ($it | str contains "permission") or ($it | str contains "denied") })
 
     if ($error_lines | length) > 0 {
         error make { msg: $"Erreur d'authentification ou de permissions: ($error_lines | str join '; ')" }
     }
 
+    # Parse le format avec pipe comme séparateur
     let result = if ($cleaned_lines | length) > 0 {
-        $cleaned_lines | str join "\n" | from csv
+        $cleaned_lines | each { |line|
+            let parts = ($line | split row '|')
+            if ($parts | length) >= 7 {
+                {
+                    typ: ($parts | get 0 | str trim),
+                    client: ($parts | get 1 | str trim),
+                    code: ($parts | get 2 | str trim),
+                    description: ($parts | get 3 | str trim),
+                    status: ($parts | get 4 | str trim),
+                    date_from: ($parts | get 5 | str trim),
+                    date_to: ($parts | get 6 | str trim)
+                }
+            }
+        } | where { |it| ($it | columns | length) > 0 } | where { |it| $it.typ != "typ" }
     } else {
         []
     }
