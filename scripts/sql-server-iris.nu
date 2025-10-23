@@ -9,6 +9,7 @@ export def "query-sql-server" [
     --trust # Utilise l'authentification Windows intégrée (équivalent à -E de sqlcmd).
     --username (-u): string # Nom d'utilisateur pour l'authentification SQL.
     --password (-p): string # Mot de passe pour l'authentification SQL.
+    --separator (-s): string = "~" # Séparateur pour la sortie CSV (défaut: ~).
     --help (-h) # Affiche cette aide.
 ] {
     if $help {
@@ -26,6 +27,7 @@ export def "query-sql-server" [
         print "  --trust                Utilise l'authentification Windows intégrée"
         print "  -u, --username <user>  Nom d'utilisateur pour l'authentification SQL"
         print "  -p, --password <pass>  Mot de passe pour l'authentification SQL"
+        print "  -s, --separator <sep>  Séparateur pour la sortie CSV (défaut: ~)"
         print "  -h, --help             Affiche cette aide"
         print ""
         print "Exemples:"
@@ -33,6 +35,7 @@ export def "query-sql-server" [
         print "  query-sql-server \"SELECT COUNT(*) FROM Orders\" --environment prod"
         print "  query-sql-server \"SELECT * FROM Products\" --trust --verbose"
         print "  query-sql-server \"SELECT * FROM Sales\" --username sa --password mypass"
+        print "  query-sql-server \"SELECT * FROM Data\" --separator \"|\""
         print ""
         print "Environnements disponibles:"
         print "  dev  - Serveur: 2019-SQLTEST, Base: AgrDev"
@@ -95,7 +98,7 @@ export def "query-sql-server" [
     let sqlcmd_args = ([
         "-S", $server,
         "-d", $database,
-        "-b", "-W", "-s", "|", "-k", "1", "-Q", $query,
+        "-b", "-W", "-s", $separator, "-k", "1", "-Q", $query,
         "-f", "65001"  # Force l'encodage UTF-8
     ] ++ $auth_args)
 
@@ -113,14 +116,8 @@ export def "query-sql-server" [
         $raw_output
     }
 
-    # Nettoie la sortie étape par étape
-    let step1 = ($raw_output_str | lines | where { |it| not ($it | str starts-with "-") })
-    let step2 = ($step1 | where { |it| not ($it | str starts-with "(") })
-    let step3 = ($step2 | where { |it| not ($it | is-empty) })
-    let step4 = ($step3 | where { |it| not ($it | str starts-with "Changed database context") })
-    let step5 = ($step4 | where { |it| not ($it | str contains "Login failed") })
-    let step6 = ($step5 | where { |it| not ($it | str contains "Access denied") })
-    let cleaned_lines = ($step6 | where { |it| not ($it | str contains "DelimiterError") })
+    # Nettoie la sortie et la convertit en CSV
+    let cleaned_lines = ($raw_output_str | lines | where { |it| not ($it | str starts-with "-") and not ($it | str starts-with "(") and not ($it | is-empty) and not ($it | str starts-with "Changed database context") and not ($it | str contains "Login failed") and not ($it | str contains "Access denied") })
 
     # Vérifie s'il y a des messages d'erreur dans la sortie
     let error_lines = ($raw_output_str | lines | where { |it| ($it | str contains "Login failed") or ($it | str contains "Access denied") or ($it | str contains "permission") or ($it | str contains "denied") })
@@ -129,22 +126,22 @@ export def "query-sql-server" [
         error make { msg: $"Erreur d'authentification ou de permissions: ($error_lines | str join '; ')" }
     }
 
-    # Parse le format avec pipe comme séparateur
     let result = if ($cleaned_lines | length) > 0 {
-        $cleaned_lines | each { |line|
-            let parts = ($line | split row '|')
-            if ($parts | length) >= 7 {
-                {
-                    typ: ($parts | get 0 | str trim),
-                    client: ($parts | get 1 | str trim),
-                    code: ($parts | get 2 | str trim),
-                    description: ($parts | get 3 | str trim),
-                    status: ($parts | get 4 | str trim),
-                    date_from: ($parts | get 5 | str trim),
-                    date_to: ($parts | get 6 | str trim)
+        let header_line = ($cleaned_lines | first)
+        let headers = ($header_line | split row $separator | each { |it| $it | str trim })
+        let data_lines = ($cleaned_lines | skip 1)
+
+        $data_lines | each { |line|
+            let parts = ($line | split row $separator | each { |it| $it | str trim })
+            $headers | enumerate | reduce -f {} { |it, acc|
+                let value = if ($it.index | into int) < ($parts | length) {
+                    $parts | get $it.index
+                } else {
+                    ""
                 }
+                $acc | upsert $it.item $value
             }
-        } | where { |it| ($it | columns | length) > 0 } | where { |it| $it.typ != "typ" }
+        }
     } else {
         []
     }
