@@ -126,6 +126,7 @@ export def "query-sql-server" [
         error make { msg: $"Erreur d'authentification ou de permissions: ($error_lines | str join '; ')" }
     }
 
+    # Parse le format avec pipe comme séparateur
     let result = if ($cleaned_lines | length) > 0 {
         let header_line = ($cleaned_lines | first)
         let headers = ($header_line | split row $separator | each { |it| $it | str trim })
