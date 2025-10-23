@@ -6,6 +6,16 @@ En NuShell, *presque* toutes les commandes retournent un tableau structuré. Ce 
 
 > 🌐 [https://www.nushell.sh/](https://www.nushell.sh/)
 
+### 🔍 Aide intégrée
+
+NuShell dispose d'un système d'aide très complet directement accessible dans le terminal :
+
+```sh
+help commands
+```
+
+> 💡 **Astuce :** C'est l'équivalent de la [page des commandes](https://www.nushell.sh/commands/) mais directement dans votre terminal ! Pour des techniques de recherche avancées, voir l'[guide des appendices](nushell-appendices.md).
+
 ### 🔢 Les tableaux en mémoire
 
 #### 🔹Exécuter une commande de base
@@ -239,11 +249,12 @@ $net_data | where local =~ 127.0.0.1 and foreign =~ 127.0.0.1
 
 #### 🔹Quelques commandes utiles
 
-```first <n>```, pour extraire les *n* premières lignes d'un tableau
+``first <n>``, pour extraire les *n* premières lignes d'un tableau
 
 ```sh
 ls | first
 ```
+
 ```sh
 ╭──────────┬──────────────╮
 │ name     │ .aitk        │
@@ -256,6 +267,7 @@ ls | first
 ```sh
 ls | first 5
 ```
+
 ```sh
 ╭───┬───────────────┬──────┬────────┬──────────────╮
 │ # │     name      │ type │  size  │   modified   │
@@ -268,11 +280,12 @@ ls | first 5
 ╰───┴───────────────┴──────┴────────┴──────────────╯
 ```
 
-```last <n>```, pour extraire les *n* dernières lignes d'un tableau
+``last <n>``, pour extraire les *n* dernières lignes d'un tableau
 
 ```sh
 ls | last
 ```
+
 ```sh
 ╭──────────┬────────────╮
 │ name     │ source     │
@@ -285,6 +298,7 @@ ls | last
 ```sh
 ls | last 5
 ```
+
 ```sh
 ╭───┬───────────────┬──────┬────────┬───────────────╮
 │ # │     name      │ type │  size  │   modified    │
@@ -297,12 +311,14 @@ ls | last 5
 ╰───┴───────────────┴──────┴────────┴───────────────╯
 ```
 
-```transpose```
+``transpose``
 
 - pour transposer un tableau
+
 ```sh
 ls | first 3 | transpose
 ```
+
 ```sh
 ╭───┬──────────┬──────────────┬──────────────┬──────────────╮
 │ # │ column0  │   column1    │   column2    │   column3    │
@@ -316,10 +332,12 @@ ls | first 3 | transpose
 
 - pour transformer une structure en tableau
 
-Si on regarde ce que retourne ```ls | first```, on voit que ce n'est pas un tableau (les colonnes n'ont pas de nom). Pour remédier à cela, on peut utiliser ```transpose```.
+Si on regarde ce que retourne ``ls | first``, on voit que ce n'est pas un tableau (les colonnes n'ont pas de nom). Pour remédier à cela, on peut utiliser ``transpose``.
+
 ```sh
 ls | first | transpose
 ```
+
 ```sh
 ╭───┬──────────┬──────────────╮
 │ # │ column0  │   column1    │
@@ -332,9 +350,11 @@ ls | first | transpose
 ```
 
 On peut aussi donner un nom plus explicite au colonnes.
-```sh $
+
+```sh
 ls | first | transpose nom extension
 ```
+
 ```sh
 ╭───┬──────────┬──────────────╮
 │ # │   nom    │  extension   │
@@ -346,10 +366,12 @@ ls | first | transpose nom extension
 ╰───┴──────────┴──────────────╯
 ```
 
-Cas d'usage de ```transpose``` : afficher les variables d'environnement filtrées selon un critère.
+Cas d'usage de ``transpose`` : afficher les variables d'environnement filtrées selon un critère.
+
 ```sh
 $env | transpose clé valeur | where clé =~ '(?i)term'
 ```
+
 ```sh
 ╭───┬────────────────────────┬─────────────────────────────────────────────────────╮
 │ # │          clé           │                       valeur                        │
@@ -2039,12 +2061,13 @@ Répertoire changé vers: /tmp
 #### 🔹Quand utiliser `def --env` ?
 
 **Utilisez `def --env` quand votre fonction doit :**
+
 - Changer le répertoire de travail (`cd`)
 - Modifier des variables d'environnement qui doivent persister
 - Créer des alias ou des fonctions temporaires
 - Configurer l'environnement pour la session
 
-**Exemple pratique : Navigation vers les repos**
+#### 🔹Exemple pratique : Navigation vers les repos
 
 ```sh
 # scripts/go-to-repos.nu
@@ -2060,6 +2083,7 @@ def --env repos [subpath? : string] {
 ```
 
 **Utilisation :**
+
 ```sh
 # Définir la variable d'environnement
 $env.repos = "D:\Users\kinnar\source\repos"
@@ -4420,3 +4444,19 @@ cached-computation "expensive_calculation" { |it|
 ```
 
 > L'analyse de données avancée avec NuShell permet de traiter efficacement de gros volumes de données tout en gardant une syntaxe claire et lisible.
+
+---
+
+## 📚 Ressources supplémentaires
+
+### 🔍 Techniques avancées
+
+Pour des techniques avancées, des plugins détaillés et des exemples complexes, consultez le [guide des appendices](nushell-appendices.md) :
+
+- **Découverte de commandes** - Techniques de recherche avancées
+- **Plugins détaillés** - Installation, configuration et exemples pratiques
+- **Optimisation des performances** - Traitement de gros volumes de données
+- **Scripts complexes** - Gestion d'erreurs et configuration dynamique
+- **Ressources communautaires** - Documentation et plugins populaires
+
+> 💡 **Astuce :** Le guide principal se concentre sur l'essentiel. Les appendices couvrent les aspects avancés pour les utilisateurs expérimentés.****
