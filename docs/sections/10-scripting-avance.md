@@ -1,14 +1,14 @@
-﻿### ðŸ“œ Scripting AvancÃ©
+﻿### 📝 Scripting Avancé
 
-#### ðŸ”¹Gestion d'erreurs avancÃ©e
+#### 🔧 Gestion d'erreurs avancée
 
 **Propagation d'erreurs avec `?` :**
 
 ```sh
-# Fonction qui peut Ã©chouer
+# Fonction qui peut échouer
 def safe_divide [a: int, b: int] {
     if $b == 0 {
-        error make { msg: "Division par zÃ©ro" }
+        error make { msg: "Division par zéro" }
     } else {
         $a / $b
     }
@@ -18,33 +18,33 @@ def safe_divide [a: int, b: int] {
 def calculate_average [numbers: list<int>] {
     let sum = ($numbers | reduce -f 0 { |it, acc| $acc + $it })
     let count = ($numbers | length)
-    safe_divide $sum $count  # L'erreur sera propagÃ©e automatiquement
+    safe_divide $sum $count  # L'erreur sera propagée automatiquement
 }
 
-# Test avec des donnÃ©es valides
+# Test avec des données valides
 calculate_average [10, 20, 30, 40]
 
-# Test avec des donnÃ©es invalides (division par zÃ©ro)
+# Test avec des données invalides (division par zéro)
 try {
     calculate_average []
 } catch { |err|
-    print $"Erreur capturÃ©e: ($err)"
+    print $"Erreur capturée: ($err)"
 }
 ```
 
 ```sh
 25
-Erreur capturÃ©e: nu::shell::error
+Erreur capturée: nu::shell::error
 ```
 
-**Try-catch avancÃ© avec gestion de diffÃ©rents types d'erreurs :**
+**Try-catch avancé avec gestion de différents types d'erreurs :**
 
 ```sh
 def process_file [file_path: string] {
     try {
         let content = (open $file_path)
         let lines = ($content | lines | length)
-        print $"Fichier traitÃ©: ($lines) lignes"
+        print $"Fichier traité: ($lines) lignes"
         $content
     } catch { |err|
         match ($err | get msg) {
@@ -53,7 +53,7 @@ def process_file [file_path: string] {
                 []
             }
             "Permission denied" => {
-                print "AccÃ¨s refusÃ© au fichier"
+                print "Accès refusé au fichier"
                 []
             }
             _ => {
@@ -64,14 +64,14 @@ def process_file [file_path: string] {
     }
 }
 
-# Test avec diffÃ©rents scÃ©narios
+# Test avec différents scénarios
 process_file "fichier-inexistant.txt"
 process_file "README.md"
 ```
 
-#### ðŸ”¹Modules et organisation
+#### 🔧 Modules et organisation
 
-**CrÃ©er un module simple :**
+**Créer un module simple :**
 
 ```sh
 # scripts/utils.nu
@@ -79,7 +79,7 @@ export def --env cd-project [project_name: string] {
     let project_path = ($env.HOME | path join "projects" $project_name)
     if ($project_path | path exists) {
         cd $project_path
-        print $"Projet '$project_name' chargÃ©"
+        print $"Projet '$project_name' chargé"
     } else {
         print $"Le projet '$project_name' n'existe pas"
     }
@@ -104,7 +104,7 @@ export def get-file-size [file_path: string] {
 # Charger le module
 use scripts/utils.nu *
 
-# Utiliser les fonctions exportÃ©es
+# Utiliser les fonctions exportées
 cd-project "mon-projet"
 format-date (date now)
 get-file-size "README.md"
@@ -121,20 +121,20 @@ export use mysql.nu
 # scripts/database/sqlite.nu
 export def create-table [db_path: string, table_name: string, schema: record] {
     let create_sql = $"CREATE TABLE ($table_name) (($schema | transpose key value | each { |it| $"($it.key) ($it.value)" } | str join ", "))"
-    print $"CrÃ©ation de la table: ($create_sql)"
-    # Logique de crÃ©ation...
+    print $"Création de la table: ($create_sql)"
+    # Logique de création...
 }
 
 # scripts/database/postgres.nu
 export def connect [host: string, port: int, database: string, user: string] {
-    print $"Connexion Ã  PostgreSQL: ($host):($port)/($database) as ($user)"
+    print $"Connexion à  PostgreSQL: ($host):($port)/($database) as ($user)"
     # Logique de connexion...
 }
 ```
 
-#### ðŸ”¹Completions personnalisÃ©es
+#### 🔧 Completions personnalisées
 
-**Completions pour les commandes personnalisÃ©es :**
+**Completions pour les commandes personnalisées :**
 
 ```sh
 # scripts/git-utils.nu
@@ -150,7 +150,7 @@ export def --env git-branch [
     }
 }
 
-# DÃ©finir les completions
+# Définir les completions
 def "git-branch-actions" [] {
     ["list", "create", "delete", "switch"]
 }
@@ -172,16 +172,16 @@ def "config-files" [] {
 }
 ```
 
-#### ðŸ”¹Configuration avancÃ©e
+#### 🔧 Configuration avancée
 
 **Configuration avec hooks :**
 
 ```sh
 # config.nu
-# Hook de changement de rÃ©pertoire
+# Hook de changement de répertoire
 $env.config = ($env.config | upsert hooks {
     pre_prompt: [{
-        # Mettre Ã  jour le prompt avec des infos Git
+        # Mettre à  jour le prompt avec des infos Git
         let git_branch = (try { git branch --show-current } catch { "" })
         let git_status = (try { git status --porcelain | lines | length } catch { 0 })
 
@@ -191,7 +191,7 @@ $env.config = ($env.config | upsert hooks {
     }]
 
     pre_execution: [{
-        # Logger les commandes exÃ©cutÃ©es
+        # Logger les commandes exécutées
         let cmd = $env.HISTORY_FILE
         if ($cmd | is-not-empty) {
             echo $"$(date now) | $cmd" | save --append ~/.nushell/history.log
@@ -225,9 +225,9 @@ def load-env-config [env_name: string] {
 
     if ($config_file | path exists) {
         source $config_file
-        print $"Configuration '$env_name' chargÃ©e"
+        print $"Configuration '$env_name' chargée"
     } else {
-        print $"Configuration '$env_name' non trouvÃ©e"
+        print $"Configuration '$env_name' non trouvée"
     }
 }
 
@@ -239,12 +239,12 @@ if ("NUSHELL_ENV" in $env) {
 }
 ```
 
-#### ðŸ”¹Performance et optimisation
+#### 🔧 Performance et optimisation
 
-**Traitement parallÃ¨le avec `par-each` :**
+**Traitement parallèle avec `par-each` :**
 
 ```sh
-# Traitement sÃ©quentiel (lent)
+# Traitement séquentiel (lent)
 def process-files-slow [files: list<string>] {
     $files | each { |file|
         let content = (open $file)
@@ -253,7 +253,7 @@ def process-files-slow [files: list<string>] {
     }
 }
 
-# Traitement parallÃ¨le (rapide)
+# Traitement parallèle (rapide)
 def process-files-fast [files: list<string>] {
     $files | par-each { |file|
         let content = (open $file)
@@ -273,13 +273,13 @@ process-files-fast $files
 # Traitement efficace de gros fichiers CSV
 def analyze-large-csv [file_path: string] {
     open $file_path
-    | skip 1  # Ignorer l'en-tÃªte
+    | skip 1  # Ignorer l'en-tête
     | par-each { |row|
         # Traitement de chaque ligne
         let processed = ($row | str split "," | each { |it| $it | str trim })
         $processed
     }
-    | group-by 0  # Grouper par premiÃ¨re colonne
+    | group-by 0  # Grouper par première colonne
     | each { |group|
         {
             category: $group.0,
@@ -293,7 +293,7 @@ def analyze-large-csv [file_path: string] {
 analyze-large-csv "big-data.csv"
 ```
 
-#### ðŸ”¹IntÃ©gration systÃ¨me
+#### 🔧 Intégration système
 
 **Gestion des processus :**
 
@@ -303,7 +303,7 @@ def monitor-process [process_name: string] {
     while true {
         let processes = (ps | where name =~ $process_name)
         if ($processes | is-empty) {
-            print $"Processus '$process_name' non trouvÃ©"
+            print $"Processus '$process_name' non trouvé"
         } else {
             $processes | select name pid cpu mem
         }
@@ -311,20 +311,20 @@ def monitor-process [process_name: string] {
     }
 }
 
-# DÃ©marrer un processus en arriÃ¨re-plan
+# Démarrer un processus en arrière-plan
 def start-background-process [command: string] {
     let pid = (run-external --redirect-stdout --redirect-stderr $command | get pid)
-    print $"Processus dÃ©marrÃ© avec PID: ($pid)"
+    print $"Processus démarré avec PID: ($pid)"
     $pid
 }
 
-# ArrÃªter un processus
+# Arrêter un processus
 def stop-process [pid: int] {
     try {
         kill $pid
-        print $"Processus ($pid) arrÃªtÃ©"
+        print $"Processus ($pid) arrêté"
     } catch {
-        print $"Impossible d'arrÃªter le processus ($pid)"
+        print $"Impossible d'arrêter le processus ($pid)"
     }
 }
 ```
@@ -335,7 +335,7 @@ def stop-process [pid: int] {
 # Redirection de sortie
 def save-command-output [command: string, output_file: string] {
     run-external $command --redirect-stdout $output_file
-    print $"Sortie sauvegardÃ©e dans: ($output_file)"
+    print $"Sortie sauvegardée dans: ($output_file)"
 }
 
 # Pipe vers une commande externe
@@ -353,7 +353,7 @@ def complex-pipeline [input_file: string] {
 }
 ```
 
-#### ðŸ”¹Scripts autonomes
+#### 🔧 Scripts autonomes
 
 **Script avec shebang :**
 
@@ -363,7 +363,7 @@ def complex-pipeline [input_file: string] {
 # Script autonome pour nettoyer les fichiers temporaires
 def main [
     --dry-run(-d): bool  # Mode simulation
-    --age: int = 7       # Ã‚ge en jours
+    --age: int = 7       # à‚ge en jours
 ] {
     let temp_dir = "/tmp"
     let cutoff_date = (date now) - ($age * 1day)
@@ -373,14 +373,14 @@ def main [
         | where modified < $cutoff_date)
 
     if $dry_run {
-        print "Mode simulation - fichiers qui seraient supprimÃ©s:"
+        print "Mode simulation - fichiers qui seraient supprimés:"
         $old_files | select name modified
     } else {
         print "Suppression des fichiers anciens..."
         for $file in $old_files {
             try {
                 rm $file.name
-                print $"SupprimÃ©: ($file.name)"
+                print $"Supprimé: ($file.name)"
             } catch {
                 print $"Erreur lors de la suppression de: ($file.name)"
             }
@@ -388,7 +388,7 @@ def main [
     }
 }
 
-# ExÃ©cution du script
+# Exécution du script
 main $args
 ```
 
@@ -420,10 +420,10 @@ def main [
         "json" => { $data | to json | save $output_file }
         "csv" => { $data | to csv | save $output_file }
         "yaml" => { $data | to yaml | save $output_file }
-        _ => { error make { msg: "Format non supportÃ©" } }
+        _ => { error make { msg: "Format non supporté" } }
     }
 
-    print $"Fichier sauvegardÃ©: ($output_file)"
+    print $"Fichier sauvegardé: ($output_file)"
 }
 
 def "formats" [] {
@@ -433,14 +433,14 @@ def "formats" [] {
 main $args
 ```
 
-#### ðŸ”¹Tests et validation de scripts
+#### 🔧 Tests et validation de scripts
 
 **Tests unitaires simples :**
 
 ```sh
 # scripts/tests.nu
 def test-math-functions [] {
-    print "Test des fonctions mathÃ©matiques..."
+    print "Test des fonctions mathématiques..."
 
     # Test de la fonction add
     let result1 = (add 2 3)
@@ -450,13 +450,13 @@ def test-math-functions [] {
     let result2 = (multiply 4 5)
     assert equal $result2 20 "Multiplication de 4 * 5"
 
-    print "Tous les tests mathÃ©matiques ont rÃ©ussi!"
+    print "Tous les tests mathématiques ont réussi!"
 }
 
 def test-file-operations [] {
-    print "Test des opÃ©rations de fichiers..."
+    print "Test des opérations de fichiers..."
 
-    # CrÃ©er un fichier de test
+    # Créer un fichier de test
     echo "test content" | save test-file.txt
 
     # Tester la lecture
@@ -466,23 +466,23 @@ def test-file-operations [] {
     # Nettoyer
     rm test-file.txt
 
-    print "Tous les tests de fichiers ont rÃ©ussi!"
+    print "Tous les tests de fichiers ont réussi!"
 }
 
 # Fonction d'assertion simple
 def assert equal [actual: any, expected: any, message: string] {
     if $actual != $expected {
         error make {
-            msg: $"Test Ã©chouÃ©: ($message). Attendu: ($expected), Obtenu: ($actual)"
+            msg: $"Test échoué: ($message). Attendu: ($expected), Obtenu: ($actual)"
         }
     }
 }
 
-# ExÃ©cuter tous les tests
+# Exécuter tous les tests
 def run-all-tests [] {
     test-math-functions
     test-file-operations
-    print "Tous les tests ont rÃ©ussi! âœ…"
+    print "Tous les tests ont réussi! ✅"
 }
 ```
 
@@ -493,32 +493,32 @@ def run-all-tests [] {
 def validate-script [script_path: string] {
     print $"Validation du script: ($script_path)"
 
-    # VÃ©rifier la syntaxe
+    # Vérifier la syntaxe
     try {
         source $script_path
-        print "âœ… Syntaxe correcte"
+        print "✅ Syntaxe correcte"
     } catch { |err|
-        print $"âŒ Erreur de syntaxe: ($err)"
+        print $"❌ Erreur de syntaxe: ($err)"
         return false
     }
 
-    # VÃ©rifier les fonctions exportÃ©es
+    # Vérifier les fonctions exportées
     let exported_functions = (scope commands | where is_exported == true)
     if ($exported_functions | is-empty) {
-        print "âš ï¸  Aucune fonction exportÃ©e trouvÃ©e"
+        print "⚠️ Aucune fonction exportée trouvée"
     } else {
-        print $"âœ… ($exported_functions | length) fonction(s) exportÃ©e(s)"
+        print $"✅ ($exported_functions | length) fonction(s) exportée(s)"
     }
 
-    # VÃ©rifier la documentation
+    # Vérifier la documentation
     let script_content = (open $script_path)
     if ($script_content | str contains "--help") {
-        print "âœ… Documentation d'aide prÃ©sente"
+        print "✅ Documentation d'aide présente"
     } else {
-        print "âš ï¸  Documentation d'aide manquante"
+        print "⚠️ Documentation d'aide manquante"
     }
 
-    print "Validation terminÃ©e"
+    print "Validation terminée"
     true
 }
 

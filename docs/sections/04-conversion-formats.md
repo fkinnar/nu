@@ -1,6 +1,6 @@
-﻿### ðŸ”„ Conversion entre formats
+﻿### 💾 Conversion entre formats
 
-#### ðŸ”¹Sauver un fichier CSV
+#### 🔧Sauver un fichier CSV
 
 ```sh
 ls examples | to csv | save ls.csv
@@ -16,7 +16,7 @@ examples\personnes.csv,file,87 B,2025-10-09 11:30:33.033195200 +02:00
 examples\ventes.xlsx,file,"11,4 kB",2025-10-09 11:38:17.741472400 +02:00
 ```
 
-#### ðŸ”¹Sauver un fichier JSON
+#### 🔧Sauver un fichier JSON
 
 ```sh
 ls examples | to json | save ls.json
@@ -53,7 +53,7 @@ open --raw ls.json
 ]
 ```
 
-#### ðŸ”¹Sauver un fichier texte
+#### 🔧Sauver un fichier texte
 
 ```sh
 ls examples | to text | save ls.txt
@@ -80,7 +80,7 @@ size: 11.483 kB
 modified: Thu, 9 Oct 2025 11:38:17 +0200 (an hour ago)
 ```
 
-#### ðŸ”¹Convertir un fichier
+#### 🔧Convertir un fichier
 
 ```sh
 open examples\personnes.csv | to json | save personnes.json

@@ -1,22 +1,22 @@
-﻿### ðŸ› ï¸ Scripts et commandes personnalisÃ©es
+### 🔧 Scripts et commandes personnalisées
 
-NuShell permet de crÃ©er des scripts et des commandes personnalisÃ©es trÃ¨s facilement. Ces scripts peuvent Ãªtre exportÃ©s et rÃ©utilisÃ©s dans diffÃ©rents projets.
+NuShell permet de créer des scripts et des commandes personnalisées très facilement. Ces scripts peuvent être exportés et réutilisés dans différents projets.
 
-#### ðŸ”¹Concepts fondamentaux du langage
+#### 🔧 Concepts fondamentaux du langage
 
-Avant de crÃ©er des scripts, il est important de comprendre les concepts de base du langage Nushell.
+Avant de créer des scripts, il est important de comprendre les concepts de base du langage Nushell.
 
 **Variables et types :**
 
 ```sh
-# DÃ©claration de variables
+# Déclaration de variables
 let name = "Alice"
 let age = 30
 let active = true
 let scores = [85, 92, 78]
 let birthday = "1990-05-15"
 
-# Types automatiquement infÃ©rÃ©s
+# Types automatiquement inférés
 $name | describe    # string
 $age | describe     # int
 $active | describe  # bool
@@ -45,11 +45,11 @@ let date_str = "2023-12-25"
 let date_obj = $date_str | into datetime
 let date_formatted = $date_obj | into string
 
-# Conversion de boolÃ©ens
+# Conversion de booléens
 let bool_str = "true"
 let bool_val = $bool_str | into bool
 
-# VÃ©rification des types aprÃ¨s conversion
+# Vérification des types après conversion
 $age_int | describe     # int
 $date_obj | describe    # datetime
 $bool_val | describe    # bool
@@ -86,16 +86,16 @@ let score = 85
 if $score >= 90 {
     print "Excellent!"
 } else if $score >= 80 {
-    print "TrÃ¨s bien!"
+    print "Très bien!"
 } else if $score >= 70 {
     print "Bien!"
 } else {
-    print "Ã€ amÃ©liorer"
+    print "À améliorer"
 }
 ```
 
 ```sh
-TrÃ¨s bien!
+Très bien!
 ```
 
 **Boucles :**
@@ -103,7 +103,7 @@ TrÃ¨s bien!
 ```sh
 # Boucle for
 for $i in 1..5 {
-    print $"NumÃ©ro: ($i)"
+    print $"Numéro: ($i)"
 }
 
 # Boucle while
@@ -115,11 +115,11 @@ while $counter < 3 {
 ```
 
 ```sh
-NumÃ©ro: 1
-NumÃ©ro: 2
-NumÃ©ro: 3
-NumÃ©ro: 4
-NumÃ©ro: 5
+Numéro: 1
+Numéro: 2
+Numéro: 3
+Numéro: 4
+Numéro: 5
 Compteur: 0
 Compteur: 1
 Compteur: 2
@@ -127,7 +127,7 @@ Compteur: 2
 
 **Valeur de retour des fonctions :**
 
-En Nushell, la valeur de retour d'une fonction est automatiquement la derniÃ¨re expression Ã©valuÃ©e :
+En Nushell, la valeur de retour d'une fonction est automatiquement la dernière expression évaluée :
 
 ```sh
 def calculate [a: int, b: int] {
@@ -160,55 +160,55 @@ check_age 16
 Mineur
 ```
 
-**OpÃ©rateurs et expressions :**
+**Opérateurs et expressions :**
 
 ```sh
-# OpÃ©rateurs mathÃ©matiques
+# Opérateurs mathématiques
 let a = 10
 let b = 5
 let result = $a + $b * 2
-print $"RÃ©sultat: ($result)"
+print $"Résultat: ($result)"
 
-# OpÃ©rateurs de comparaison
+# Opérateurs de comparaison
 let score1 = 85
 let score2 = 90
 let is_better = $score2 > $score1
 print $"Score2 est meilleur: ($is_better)"
 
-# OpÃ©rateurs logiques
+# Opérateurs logiques
 let age = 25
 let has_license = true
 let can_drive = $age >= 18 and $has_license
 print $"Peut conduire: ($can_drive)"
 
-# OpÃ©rateurs de chaÃ®nes
+# Opérateurs de chaînes
 let first_name = "Alice"
 let last_name = "Smith"
 let full_name = $first_name + " " + $last_name
 print $"Nom complet: ($full_name)"
 
-# OpÃ©rateur de correspondance
+# Opérateur de correspondance
 let text = "Hello World"
 let contains_hello = $text =~ "Hello"
 print $"Contient 'Hello': ($contains_hello)"
 ```
 
 ```sh
-RÃ©sultat: 20
+Résultat: 20
 Score2 est meilleur: true
 Peut conduire: true
 Nom complet: Alice Smith
 Contient 'Hello': true
 ```
 
-**Ranges et sÃ©quences :**
+**Ranges et séquences :**
 
 ```sh
-# Ranges numÃ©riques
+# Ranges numériques
 let numbers = 1..10
 print $numbers
 
-# Ranges de caractÃ¨res
+# Ranges de caractères
 let letters = 'a'..'z'
 print ($letters | first 5)
 
@@ -216,7 +216,7 @@ print ($letters | first 5)
 let even_numbers = (1..20 | where $it % 2 == 0)
 print ($even_numbers | first 5)
 
-# Ranges inversÃ©s
+# Ranges inversés
 let countdown = (10..1)
 print ($countdown | first 3)
 ```
@@ -231,7 +231,7 @@ print ($countdown | first 3)
 **Closures et fonctions anonymes :**
 
 ```sh
-# DÃ©finir une closure
+# Définir une closure
 let add = { |x, y| $x + $y }
 let multiply = { |x, y| $x * $y }
 
@@ -262,10 +262,10 @@ print $"Somme: ($sum)"
 Somme: 15
 ```
 
-**Manipulation de donnÃ©es :**
+**Manipulation de données :**
 
 ```sh
-# CrÃ©er un tableau
+# Créer un tableau
 let users = [
     {name: "Alice", age: 30, city: "Paris"},
     {name: "Bob", age: 25, city: "Lyon"},
@@ -279,17 +279,17 @@ $users
 ```
 
 ```sh
-â•­â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•®
-â”‚ # â”‚  nom   â”‚   ville   â”‚
-â”œâ”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
-â”‚ 0 â”‚ Alice  â”‚ Paris     â”‚
-â”‚ 1 â”‚ Charlieâ”‚ Marseille â”‚
-â•°â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•¯
+┌───┬────────┬───────────┤
+│ # │  nom   │   ville   │
+├───├────────├───────────┼
+│ 0 │ Alice  │ Paris     │
+│ 1 │ Charlie│ Marseille │
+└───┴────────┴───────────┘
 ```
 
-#### ðŸ”¹Gestion des erreurs dans les scripts
+#### 🔧 Gestion des erreurs dans les scripts
 
-NuShell offre plusieurs mÃ©canismes pour gÃ©rer les erreurs et dÃ©boguer les scripts.
+NuShell offre plusieurs mécanismes pour gérer les erreurs et déboguer les scripts.
 
 **Gestion d'erreurs avec try-catch :**
 
@@ -307,7 +307,7 @@ Le fichier n'existe pas
 ```
 
 ```sh
-# RÃ©cupÃ©rer l'erreur pour l'analyser
+# Récupérer l'erreur pour l'analyser
 try {
     "abc" | into int
 } catch { |err|
@@ -319,16 +319,16 @@ try {
 Erreur de conversion: nu::shell::cant_convert
 ```
 
-**CrÃ©er des erreurs personnalisÃ©es :**
+**Créer des erreurs personnalisées :**
 
 ```sh
 def validate_age [age: int] {
     if $age < 0 {
-        error make { msg: "L'Ã¢ge ne peut pas Ãªtre nÃ©gatif" }
+        error make { msg: "L'âge ne peut pas être négatif" }
     } else if $age > 150 {
-        error make { msg: "L'Ã¢ge semble irrÃ©aliste" }
+        error make { msg: "L'âge semble irréaliste" }
     } else {
-        print $"Ã‚ge valide: ($age)"
+        print $"âge valide: ($age)"
     }
 }
 
@@ -337,10 +337,10 @@ validate_age -5
 ```
 
 ```sh
-Ã‚ge valide: 25
+âge valide: 25
 Error: nu::shell::error
 
-  Ã— L'Ã¢ge ne peut pas Ãªtre nÃ©gatif
+  à— L'âge ne peut pas être négatif
 ```
 
 **Gestion d'erreurs dans les pipelines :**
@@ -349,7 +349,7 @@ Error: nu::shell::error
 # Utiliser '?' pour propager les erreurs
 def safe_divide [a: int, b: int] {
     if $b == 0 {
-        error make { msg: "Division par zÃ©ro" }
+        error make { msg: "Division par zéro" }
     } else {
         $a / $b
     }
@@ -363,20 +363,20 @@ let result = (try {
     0
 })
 
-print $"RÃ©sultat: ($result)"
+print $"Résultat: ($result)"
 ```
 
 ```sh
-RÃ©sultat: 5
+Résultat: 5
 ```
 
-**Debugging et traÃ§age :**
+**Debugging et traçage :**
 
 ```sh
 def debug_function [input: string] {
-    print $"EntrÃ©e: ($input)"
+    print $"Entrée: ($input)"
     let processed = ($input | str upcase)
-    print $"AprÃ¨s traitement: ($processed)"
+    print $"Après traitement: ($processed)"
     $processed
 }
 
@@ -384,8 +384,8 @@ debug_function "hello"
 ```
 
 ```sh
-EntrÃ©e: hello
-AprÃ¨s traitement: HELLO
+Entrée: hello
+Après traitement: HELLO
 HELLO
 ```
 
@@ -395,19 +395,19 @@ let data = [1, 2, 3, 4, 5]
 $data | debug | where $it > 3
 ```
 
-#### ðŸ”¹Variables d'environnement dans les scripts
+#### 🔧 Variables d'environnement dans les scripts
 
 **Modifier les variables d'environnement :**
 
 ```sh
-# DÃ©finir une variable temporaire
+# Définir une variable temporaire
 $env.MY_VAR = "valeur temporaire"
 print $env.MY_VAR
 
 # Modifier le PATH
 $env.PATH = ($env.PATH | split row ":" | append "/usr/local/bin" | str join ":")
 
-# Ajouter au PATH (mÃ©thode plus propre)
+# Ajouter au PATH (méthode plus propre)
 $env.PATH = ($env.PATH | split row ":" | append "/opt/myapp/bin" | str join ":")
 ```
 
@@ -418,7 +418,7 @@ valeur temporaire
 **Charger des variables depuis un fichier :**
 
 ```sh
-# CrÃ©er un fichier de variables
+# Créer un fichier de variables
 echo "API_KEY=abc123
 DEBUG=true
 LOG_LEVEL=info" | save config.env
@@ -426,7 +426,7 @@ LOG_LEVEL=info" | save config.env
 # Charger les variables
 open config.env | lines | parse "{key}={value}" | reduce -f {} { |it, acc| $acc | upsert $it.key $it.value } | load-env
 
-# VÃ©rifier que les variables sont chargÃ©es
+# Vérifier que les variables sont chargées
 print $env.API_KEY
 print $env.DEBUG
 ```
@@ -460,7 +460,7 @@ export def --env setup-project [project_name: string] {
     $env.PROJECT_ROOT = ($env.HOME | path join "projects" $project_name)
     $env.PROJECT_ENV = "development"
 
-    print $"Projet configurÃ©: ($env.PROJECT_NAME)"
+    print $"Projet configuré: ($env.PROJECT_NAME)"
     print $"Racine: ($env.PROJECT_ROOT)"
     print $"Environnement: ($env.PROJECT_ENV)"
 }
@@ -469,7 +469,7 @@ setup-project "mon-app"
 ```
 
 ```sh
-Projet configurÃ©: mon-app
+Projet configuré: mon-app
 Racine: /home/user/projects/mon-app
 Environnement: development
 ```
@@ -479,19 +479,19 @@ Environnement: development
 ```sh
 # Variables d'environnement pour les secrets
 $env.DATABASE_PASSWORD = (input "Mot de passe DB: " --password)
-$env.API_SECRET = (input "ClÃ© API secrÃ¨te: " --password)
+$env.API_SECRET = (input "Clé API secrète: " --password)
 
 # Utilisation dans les scripts
 def connect-db [] {
     let connection_string = $"postgresql://user:($env.DATABASE_PASSWORD)@localhost/db"
-    print "Connexion Ã  la base de donnÃ©es..."
+    print "Connexion à  la base de données..."
     # ... logique de connexion
 }
 ```
 
-> Les variables d'environnement sont essentielles pour la configuration des applications et le partage de paramÃ¨tres entre scripts.
+> Les variables d'environnement sont essentielles pour la configuration des applications et le partage de paramètres entre scripts.
 
-#### ðŸ”¹CrÃ©er une commande simple
+#### 🔧 Créer une commande simple
 
 ```sh
 def greet [name: string] {
@@ -505,9 +505,9 @@ greet "Nushell"
 Hello, Nushell!
 ```
 
-> La commande `def` permet de dÃ©finir une nouvelle commande. Les paramÃ¨tres sont typÃ©s (ici `string`).
+> La commande `def` permet de définir une nouvelle commande. Les paramètres sont typés (ici `string`).
 
-#### ðŸ”¹CrÃ©er une commande avec plusieurs paramÃ¨tres
+#### 🔧 Créer une commande avec plusieurs paramètres
 
 ```sh
 def add [a: int, b: int] {
@@ -521,7 +521,7 @@ add 5 3
 8
 ```
 
-#### ðŸ”¹CrÃ©er une commande avec des options
+#### 🔧 Créer une commande avec des options
 
 ```sh
 def greet [
@@ -552,7 +552,7 @@ HELLO, CHARLIE!
 GOOD DAY, DAVID!
 ```
 
-#### ðŸ”¹Exporter une commande pour la rÃ©utiliser
+#### 🔧 Exporter une commande pour la réutiliser
 
 ```sh
 export def load-dotenv [
@@ -569,7 +569,7 @@ export def load-dotenv [
         print "  open <file> | load-dotenv [OPTIONS]"
         print ""
         print "Options:"
-        print "  -f, --force            Ã‰craser les variables existantes"
+        print "  -f, --force            à‰craser les variables existantes"
         print "  -q, --quiet            Mode silencieux (pas de messages)"
         print "  -h, --help             Afficher cette aide"
         return
@@ -598,7 +598,7 @@ export def load-dotenv [
     | where not ($it | str starts-with "#")
     | parse "{key}={value}"
 
-    # SÃ©parer les variables existantes et nouvelles
+    # Séparer les variables existantes et nouvelles
     let existing_vars = $env_vars | where { |it| ($env | get -o $it.key | is-not-empty) }
     let new_vars = $env_vars | where { |it| ($env | get -o $it.key | is-empty) }
 
@@ -606,9 +606,9 @@ export def load-dotenv [
     if not $quiet {
         for $var in $existing_vars {
             if $force {
-                print $"Variable ($var.key) Ã©crasÃ©e avec la valeur: ($var.value)"
+                print $"Variable ($var.key) écrasée avec la valeur: ($var.value)"
             } else {
-                print $"Warning: Variable ($var.key) existe dÃ©jÃ  et n'a pas Ã©tÃ© modifiÃ©e. Utilisez --force pour l'Ã©craser."
+                print $"Warning: Variable ($var.key) existe déjà  et n'a pas été modifiée. Utilisez --force pour l'écraser."
             }
         }
     }
@@ -628,48 +628,48 @@ export def load-dotenv [
 
 > `export def` permet d'exporter la commande pour qu'elle soit disponible dans d'autres scripts ou dans la configuration.
 
-#### ðŸ”¹Utiliser une commande exportÃ©e
+#### 🔧 Utiliser une commande exportée
 
 ```sh
 # Charger le script
 source scripts/load-dotenv.nu
 
 # Utiliser la commande
-load-dotenv                    # Charge .env par dÃ©faut
-load-dotenv config.env         # Charge un fichier spÃ©cifique
+load-dotenv                    # Charge .env par défaut
+load-dotenv config.env         # Charge un fichier spécifique
 open .env | load-dotenv        # Utilise le pipe (approche Nushellienne)
-load-dotenv --force            # Ã‰crase les variables existantes
+load-dotenv --force            # à‰crase les variables existantes
 load-dotenv --quiet            # Mode silencieux
 load-dotenv --help             # Affiche l'aide
 ```
 
-#### ðŸ”¹CrÃ©er une commande qui modifie l'environnement
+#### 🔧 Créer une commande qui modifie l'environnement
 
 ```sh
 export def --env my-cd [path: string] {
     cd $path
-    print $"RÃ©pertoire changÃ© vers: ($env.PWD)"
+    print $"Répertoire changé vers: ($env.PWD)"
 }
 
 my-cd /tmp
 ```
 
 ```sh
-RÃ©pertoire changÃ© vers: /tmp
+Répertoire changé vers: /tmp
 ```
 
-> `def --env` permet Ã  la commande de modifier l'environnement du shell appelant. Sans cela, les changements d'environnement sont limitÃ©s au scope de la commande.
+> `def --env` permet à  la commande de modifier l'environnement du shell appelant. Sans cela, les changements d'environnement sont limités au scope de la commande.
 
-#### ðŸ”¹Quand utiliser `def --env` ?
+#### 🔧 Quand utiliser `def --env` ?
 
 **Utilisez `def --env` quand votre fonction doit :**
 
-- Changer le rÃ©pertoire de travail (`cd`)
+- Changer le répertoire de travail (`cd`)
 - Modifier des variables d'environnement qui doivent persister
-- CrÃ©er des alias ou des fonctions temporaires
+- Créer des alias ou des fonctions temporaires
 - Configurer l'environnement pour la session
 
-#### ðŸ”¹Exemple pratique : Navigation vers les repos
+#### 🔧 Exemple pratique : Navigation vers les repos
 
 ```sh
 # scripts/go-to-repos.nu
@@ -687,7 +687,7 @@ def --env repos [subpath? : string] {
 **Utilisation :**
 
 ```sh
-# DÃ©finir la variable d'environnement
+# Définir la variable d'environnement
 $env.repos = "D:\Users\kinnar\source\repos"
 
 # Charger le script
@@ -699,9 +699,9 @@ repos n2f               # Va vers D:\Users\kinnar\source\repos\n2f
 repos "autre-projet"    # Va vers D:\Users\kinnar\source\repos\autre-projet
 ```
 
-**âš ï¸ Important :** Sans `--env`, la fonction `cd` ne changerait pas le rÃ©pertoire de la session parente !
+**⚠️ Important :** Sans `--env`, la fonction `cd` ne changerait pas le répertoire de la session parente !
 
-#### ðŸ”¹CrÃ©er une commande complexe avec gestion d'erreurs
+#### 🔧 Créer une commande complexe avec gestion d'erreurs
 
 ```sh
 export def query-sql-server [
@@ -720,16 +720,16 @@ export def query-sql-server [
         print "  query-sql-server <QUERY> [OPTIONS]"
         print ""
         print "Options:"
-        print "  -e, --environment <env> Environnement Ã  utiliser (dev, prod)"
-        print "  -v, --verbose          Affiche les messages de dÃ©bogage"
-        print "  --trust                Utilise l'authentification Windows intÃ©grÃ©e"
+        print "  -e, --environment <env> Environnement à  utiliser (dev, prod)"
+        print "  -v, --verbose          Affiche les messages de débogage"
+        print "  --trust                Utilise l'authentification Windows intégrée"
         print "  -u, --username <user>  Nom d'utilisateur pour l'authentification SQL"
         print "  -p, --password <pass>  Mot de passe pour l'authentification SQL"
         print "  -h, --help             Affiche cette aide"
         return
     }
 
-    # DÃ©termine l'environnement
+    # Détermine l'environnement
     mut current_env = "dev"
     if ("SQL_DEFAULT_ENV" in $env and $env.SQL_DEFAULT_ENV != null) {
         $current_env = $env.SQL_DEFAULT_ENV
@@ -761,11 +761,11 @@ export def query-sql-server [
         []
     }
 
-    # ExÃ©cute sqlcmd avec gestion d'erreur
+    # Exécute sqlcmd avec gestion d'erreur
     let raw_output = (try {
         sqlcmd -S $server -d $database -b -W -s "," -k 1 -Q $query -f 65001 ...$auth_args
     } catch {
-        error make { msg: "Erreur lors de l'exÃ©cution de sqlcmd. VÃ©rifiez vos credentials, permissions ou la connectivitÃ© au serveur." }
+        error make { msg: "Erreur lors de l'exécution de sqlcmd. Vérifiez vos credentials, permissions ou la connectivité au serveur." }
     })
 
     # Nettoie et convertit la sortie
@@ -778,14 +778,14 @@ export def query-sql-server [
     }
 
     if ($result | is-empty) {
-        error make { msg: "Aucun rÃ©sultat retournÃ©. VÃ©rifiez que la requÃªte est correcte et que vous avez les permissions nÃ©cessaires." }
+        error make { msg: "Aucun résultat retourné. Vérifiez que la requête est correcte et que vous avez les permissions nécessaires." }
     } else {
         $result
     }
 }
 ```
 
-#### ðŸ”¹Utiliser la commande SQL
+#### 🔧 Utiliser la commande SQL
 
 ```sh
 # Charger le script
@@ -796,16 +796,16 @@ query-sql-server "SELECT * FROM iris_geo_company" --environment prod --username=
 ```
 
 ```sh
-â•­â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•®
-â”‚ # â”‚                  id                   â”‚        company_name         â”‚ company_number â”‚ company_country â”‚ company_code â”‚ company_group â”‚
-â”œâ”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
-â”‚ 0 â”‚ 62c927fd-c60c-4dbe-948a-cd621ea2f6a8  â”‚ SA IRIS                     â”‚      453520431 â”‚ Belgium         â”‚ IRS          â”‚ IND           â”‚
-â”‚ 1 â”‚ 8a718cd0-fa68-477c-86f4-e7734ba5336c  â”‚ IRIS CLEANING SERVICES  SA  â”‚      453520233 â”‚ Belgium         â”‚ ICS          â”‚ IFS           â”‚
-â”‚ 2 â”‚ ef976bdb-caf8-40a7-87e9-f857b75d6073  â”‚ SPRL IRIS GREENCARE         â”‚      416912532 â”‚ Belgium         â”‚ IGC          â”‚ IGC           â”‚
-â•°â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•¯
+┌───┬───────────────────────────────────────┬─────────────────────────────┬────────────────┬─────────────────┬──────────────┬───────────────┤
+│ # │                  id                   │        company_name         │ company_number │ company_country │ company_code │ company_group │
+├───├───────────────────────────────────────├─────────────────────────────├────────────────├─────────────────├──────────────├───────────────┼
+│ 0 │ 62c927fd-c60c-4dbe-948a-cd621ea2f6a8  │ SA IRIS                     │      453520431 │ Belgium         │ IRS          │ IND           │
+│ 1 │ 8a718cd0-fa68-477c-86f4-e7734ba5336c  │ IRIS CLEANING SERVICES  SA  │      453520233 │ Belgium         │ ICS          │ IFS           │
+│ 2 │ ef976bdb-caf8-40a7-87e9-f857b75d6073  │ SPRL IRIS GREENCARE         │      416912532 │ Belgium         │ IGC          │ IGC           │
+└───┴───────────────────────────────────────┴─────────────────────────────┴────────────────┴─────────────────┴──────────────┴───────────────┘
 ```
 
-#### ðŸ”¹Organiser les scripts dans des modules
+#### 🔧 Organiser les scripts dans des modules
 
 ```sh
 # scripts/mod.nu
@@ -820,7 +820,7 @@ load-dotenv
 query-sql-server "SELECT COUNT(*) FROM iris_geo_company"
 ```
 
-#### ðŸ”¹Ajouter des scripts Ã  la configuration
+#### 🔧 Ajouter des scripts à  la configuration
 
 ```sh
 # Dans config.nu
@@ -828,9 +828,9 @@ source ~/path/to/scripts/load-dotenv.nu
 source ~/path/to/scripts/sql-server-iris.nu
 ```
 
-> Une fois ajoutÃ©s Ã  la configuration, les scripts sont disponibles automatiquement Ã  chaque dÃ©marrage de NuShell.
+> Une fois ajoutés à  la configuration, les scripts sont disponibles automatiquement à  chaque démarrage de NuShell.
 
-#### ðŸ”¹CrÃ©er une commande qui wrap une commande externe
+#### 🔧 Créer une commande qui wrap une commande externe
 
 ```sh
 export def --wrapped my-git [...args] {
@@ -843,16 +843,16 @@ export def --wrapped my-git [...args] {
 my-git status
 ```
 
-> `def --wrapped` permet de crÃ©er une commande qui Ã©tend une commande externe en interceptant ses arguments.
+> `def --wrapped` permet de créer une commande qui étend une commande externe en interceptant ses arguments.
 
-#### ðŸ”¹Bonnes pratiques pour les scripts
+#### 🔧 Bonnes pratiques pour les scripts
 
-1. **Utiliser `export def`** pour les commandes rÃ©utilisables
+1. **Utiliser `export def`** pour les commandes réutilisables
 2. **Ajouter de l'aide** avec `--help` et des commentaires
-3. **GÃ©rer les erreurs** avec `try-catch` et `error make`
-4. **Utiliser des types** pour les paramÃ¨tres (`string`, `int`, etc.)
-5. **Organiser** les scripts dans des dossiers dÃ©diÃ©s
-6. **Tester** les scripts avec diffÃ©rents paramÃ¨tres
+3. **Gérer les erreurs** avec `try-catch` et `error make`
+4. **Utiliser des types** pour les paramètres (`string`, `int`, etc.)
+5. **Organiser** les scripts dans des dossiers dédiés
+6. **Tester** les scripts avec différents paramètres
 7. **Documenter** l'usage avec des exemples concrets
 
-> Les scripts NuShell sont trÃ¨s puissants et permettent d'automatiser des tÃ¢ches complexes tout en gardant la lisibilitÃ© et la maintenabilitÃ© du code.
+> Les scripts NuShell sont très puissants et permettent d'automatiser des tâches complexes tout en gardant la lisibilité et la maintenabilité du code.

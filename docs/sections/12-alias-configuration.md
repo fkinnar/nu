@@ -1,11 +1,11 @@
-﻿### ðŸŽ¨ Alias et Configuration PersonnalisÃ©e
+﻿### 🎨 Alias et Configuration Personnalisée
 
-#### ðŸ”¹CrÃ©er des alias utiles
+#### 🔧 Créer des alias utiles
 
 **Alias de base :**
 
 ```sh
-# Alias pour les commandes frÃ©quentes
+# Alias pour les commandes fréquentes
 alias ll = ls -la
 alias la = ls -a
 alias lt = ls --long --du --size
@@ -34,7 +34,7 @@ alias top = ps | where cpu > 0 | sort-by cpu -r | first 10
 alias killall = ps | where name =~ $in | get pid | each { |pid| kill $pid }
 ```
 
-**Alias avec paramÃ¨tres :**
+**Alias avec paramètres :**
 
 ```sh
 # Alias pour la recherche
@@ -57,19 +57,19 @@ alias mkdir = mkdir -p
 **Alias complexes :**
 
 ```sh
-# Alias pour le monitoring systÃ¨me
+# Alias pour le monitoring système
 alias meminfo = ps | where name != "ps" | reduce -f 0 { |it, acc| $acc + $it.mem } | into filesize
 alias diskusage = du | where physical > 1gb | sort-by physical -r | first 10
 alias netstat = netstat -tuln | lines | skip 2 | parse "{proto} {local} {foreign} {state}"
 
-# Alias pour le dÃ©veloppement
+# Alias pour le développement
 alias serve = python -m http.server 8000
 alias jupyter = jupyter notebook --no-browser --port=8888
 alias docker-clean = docker system prune -f
 alias k8s-pods = kubectl get pods -o wide
 ```
 
-#### ðŸ”¹Configuration personnalisÃ©e (config.nu)
+#### 🔧 Configuration personnalisée (config.nu)
 
 **Configuration de base :**
 
@@ -79,7 +79,7 @@ alias k8s-pods = kubectl get pods -o wide
 source ~/.config/nushell/aliases.nu
 source ~/.config/nushell/functions.nu
 
-# Configuration de l'Ã©diteur
+# Configuration de l'éditeur
 $env.EDITOR = "code"
 $env.VISUAL = "code"
 
@@ -138,7 +138,7 @@ $env.config = ($env.config | upsert color_config {
 **Configuration du prompt :**
 
 ```sh
-# Prompt personnalisÃ©
+# Prompt personnalisé
 def create_left_prompt [] {
     let path_segment = if ($env.PWD | str length) > 20 {
         ($env.PWD | str substring 0 20) + "..."
@@ -162,7 +162,7 @@ def create_left_prompt [] {
         if $git_status > 0 {
             $"($git_branch) *"
         } else {
-            $"($git_branch) âœ“"
+            $"($git_branch) ✓"
         }
     } else {
         ""
@@ -182,10 +182,10 @@ $env.PROMPT_COMMAND_RIGHT = { "" }
 **Configuration des hooks :**
 
 ```sh
-# Hooks de changement de rÃ©pertoire
+# Hooks de changement de répertoire
 $env.config = ($env.config | upsert hooks {
     pre_prompt: [{
-        # Mettre Ã  jour les informations Git
+        # Mettre à  jour les informations Git
         let git_branch = (try { git branch --show-current } catch { "" })
         $env.GIT_BRANCH = $git_branch
     }]
@@ -200,7 +200,7 @@ $env.config = ($env.config | upsert hooks {
 
     env_change: {
         PWD: [{
-            # Mettre Ã  jour le titre de la fenÃªtre
+            # Mettre à  jour le titre de la fenêtre
             if ($env.TERM_PROGRAM == "vscode") {
                 print $"\e]0;NuShell - ($env.PWD)\a"
             }
@@ -209,9 +209,9 @@ $env.config = ($env.config | upsert hooks {
 })
 ```
 
-#### ðŸ”¹ThÃ¨mes et personnalisation de l'interface
+#### 🔧 Thèmes et personnalisation de l'interface
 
-**ThÃ¨me sombre personnalisÃ© :**
+**Thème sombre personnalisé :**
 
 ```sh
 # themes/dark.nu
@@ -262,7 +262,7 @@ $env.config = ($env.config | upsert color_config {
 })
 ```
 
-**ThÃ¨me clair personnalisÃ© :**
+**Thème clair personnalisé :**
 
 ```sh
 # themes/light.nu
@@ -313,7 +313,7 @@ $env.config = ($env.config | upsert color_config {
 })
 ```
 
-**Changer de thÃ¨me dynamiquement :**
+**Changer de thème dynamiquement :**
 
 ```sh
 # functions/theme.nu
@@ -322,19 +322,19 @@ export def switch-theme [theme_name: string] {
         "dark" => { source ~/.config/nushell/themes/dark.nu }
         "light" => { source ~/.config/nushell/themes/light.nu }
         "default" => { source ~/.config/nushell/themes/default.nu }
-        _ => { print "ThÃ¨me non trouvÃ©. ThÃ¨mes disponibles: dark, light, default" }
+        _ => { print "Thème non trouvé. Thèmes disponibles: dark, light, default" }
     }
 
-    print $"ThÃ¨me changÃ© vers: ($theme_name)"
+    print $"Thème changé vers: ($theme_name)"
 }
 
-# Alias pour changer de thÃ¨me
+# Alias pour changer de thème
 alias theme = switch-theme
 alias dark = switch-theme dark
 alias light = switch-theme light
 ```
 
-#### ðŸ”¹IntÃ©gration avec Git
+#### 🔧 Intégration avec Git
 
 **Commandes Git natives :**
 
@@ -396,31 +396,31 @@ alias gp = git push
 alias gpl = git pull
 ```
 
-**Workflow Git automatisÃ© :**
+**Workflow Git automatisé :**
 
 ```sh
 # functions/git-workflow.nu
 export def git-quick-commit [message: string] {
     git add .
     git commit -m $message
-    print "Commit crÃ©Ã© avec succÃ¨s"
+    print "Commit créé avec succès"
 }
 
 export def git-push-branch [branch_name: string] {
     git push -u origin $branch_name
-    print $"Branche ($branch_name) poussÃ©e vers origin"
+    print $"Branche ($branch_name) poussée vers origin"
 }
 
 export def git-sync [] {
     git fetch --all
     git pull origin (git branch --show-current)
-    print "Synchronisation terminÃ©e"
+    print "Synchronisation terminée"
 }
 
 export def git-cleanup [] {
     git branch --merged | lines | where $it != "*" and $it != "main" and $it != "master" | each { |branch|
         git branch -d ($branch | str trim)
-        print $"Branche supprimÃ©e: ($branch)"
+        print $"Branche supprimée: ($branch)"
     }
 }
 
@@ -431,9 +431,9 @@ alias gsync = git-sync
 alias gclean = git-cleanup
 ```
 
-#### ðŸ”¹Configuration par environnement
+#### 🔧 Configuration par environnement
 
-**Configuration de dÃ©veloppement :**
+**Configuration de développement :**
 
 ```sh
 # env/development.nu
@@ -441,7 +441,7 @@ $env.NODE_ENV = "development"
 $env.DEBUG = "true"
 $env.LOG_LEVEL = "debug"
 
-# Configuration de la base de donnÃ©es
+# Configuration de la base de données
 $env.DATABASE_URL = "postgresql://localhost:5432/myapp_dev"
 $env.REDIS_URL = "redis://localhost:6379"
 
@@ -449,7 +449,7 @@ $env.REDIS_URL = "redis://localhost:6379"
 $env.API_URL = "http://localhost:3000"
 $env.WEB_URL = "http://localhost:8080"
 
-# Alias spÃ©cifiques au dÃ©veloppement
+# Alias spécifiques au développement
 alias dev-server = npm run dev
 alias test = npm test
 alias build = npm run build
@@ -464,7 +464,7 @@ $env.NODE_ENV = "production"
 $env.DEBUG = "false"
 $env.LOG_LEVEL = "error"
 
-# Configuration de la base de donnÃ©es
+# Configuration de la base de données
 $env.DATABASE_URL = $env.PROD_DATABASE_URL
 $env.REDIS_URL = $env.PROD_REDIS_URL
 
@@ -472,7 +472,7 @@ $env.REDIS_URL = $env.PROD_REDIS_URL
 $env.API_URL = $env.PROD_API_URL
 $env.WEB_URL = $env.PROD_WEB_URL
 
-# Alias spÃ©cifiques Ã  la production
+# Alias spécifiques à  la production
 alias deploy = ./scripts/deploy.sh
 alias backup = ./scripts/backup.sh
 alias monitor = ./scripts/monitor.sh
@@ -487,9 +487,9 @@ def load-env-config [env_name: string] {
 
     if ($config_file | path exists) {
         source $config_file
-        print $"Configuration '$env_name' chargÃ©e"
+        print $"Configuration '$env_name' chargée"
     } else {
-        print $"Configuration '$env_name' non trouvÃ©e"
+        print $"Configuration '$env_name' non trouvée"
     }
 }
 
@@ -504,8 +504,8 @@ if ("NUSHELL_ENV" in $env) {
 export def switch-env [env_name: string] {
     $env.NUSHELL_ENV = $env_name
     load-env-config $env_name
-    print $"Environnement changÃ© vers: ($env_name)"
+    print $"Environnement changé vers: ($env_name)"
 }
 ```
 
-> La configuration personnalisÃ©e permet d'adapter NuShell Ã  vos besoins spÃ©cifiques et d'automatiser vos workflows quotidiens.
+> La configuration personnalisée permet d'adapter NuShell à  vos besoins spécifiques et d'automatiser vos workflows quotidiens.

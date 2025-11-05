@@ -1,29 +1,29 @@
-﻿### ðŸ”§ Outils et Utilitaires
+﻿### 🛠️ Outils et Utilitaires
 
-#### ðŸ”¹Chemins et navigation avancÃ©e
+#### 🔧 Chemins et navigation avancée
 
 **Navigation intelligente :**
 
 ```sh
 # Fonction de navigation avec historique
 export def --env smart-cd [path: string] {
-    # Sauvegarder l'ancien rÃ©pertoire
+    # Sauvegarder l'ancien répertoire
     let old_path = $env.PWD
 
-    # Changer de rÃ©pertoire
+    # Changer de répertoire
     cd $path
 
-    # Ajouter Ã  l'historique
+    # Ajouter à  l'historique
     $env.DIR_HISTORY = ($env.DIR_HISTORY | default [] | append $old_path | last 50)
 
-    print $"RÃ©pertoire changÃ©: ($old_path) -> ($env.PWD)"
+    print $"Répertoire changé: ($old_path) -> ($env.PWD)"
 }
 
 # Alias pour la navigation intelligente
 alias cd = smart-cd
 alias back = cd $env.DIR_HISTORY.0
 
-# Navigation rapide vers les dossiers frÃ©quents
+# Navigation rapide vers les dossiers fréquents
 export def --env quick-cd [name: string] {
     let quick_paths = {
         "docs" => "~/Documents",
@@ -35,9 +35,9 @@ export def --env quick-cd [name: string] {
 
     if ($name in $quick_paths) {
         cd ($quick_paths | get $name)
-        print $"NaviguÃ© vers: ($name) -> ($env.PWD)"
+        print $"Navigué vers: ($name) -> ($env.PWD)"
     } else {
-        print "Dossier rapide non trouvÃ©. Dossiers disponibles:"
+        print "Dossier rapide non trouvé. Dossiers disponibles:"
         $quick_paths | transpose name path | select name
     }
 }
@@ -46,7 +46,7 @@ export def --env quick-cd [name: string] {
 alias qcd = quick-cd
 ```
 
-**Recherche de fichiers avancÃ©e :**
+**Recherche de fichiers avancée :**
 
 ```sh
 # Recherche de fichiers par nom
@@ -100,7 +100,7 @@ export def relative-path [target: string, base: string = $env.PWD] {
     }
 }
 
-# Fonction pour crÃ©er une structure de dossiers
+# Fonction pour créer une structure de dossiers
 export def mkdir-tree [structure: record] {
     $structure | transpose name children | each { |item|
         let dir_path = $item.name
@@ -127,7 +127,7 @@ mkdir-tree {
 }
 ```
 
-#### ðŸ”¹Compression/dÃ©compression de fichiers
+#### 🔧 Compression/décompression de fichiers
 
 **Gestion des archives :**
 
@@ -146,13 +146,13 @@ export def compress [input: string, --output(-o): string, --format(-f): string =
         "targz" => { tar -czf $output_file $input }
         "tarbz2" => { tar -cjf $output_file $input }
         "7z" => { 7z a $output_file $input }
-        _ => { error make { msg: "Format non supportÃ©" } }
+        _ => { error make { msg: "Format non supporté" } }
     }
 
-    print $"Archive crÃ©Ã©e: ($output_file)"
+    print $"Archive créée: ($output_file)"
 }
 
-# Fonction de dÃ©compression universelle
+# Fonction de décompression universelle
 export def extract [archive: string, --output(-o): string] {
     let output_dir = if $output != null {
         $output
@@ -170,7 +170,7 @@ export def extract [archive: string, --output(-o): string] {
         "gz" => { tar -xzf $archive }
         "bz2" => { tar -xjf $archive }
         "7z" => { 7z x $archive }
-        _ => { error make { msg: "Format d'archive non supportÃ©" } }
+        _ => { error make { msg: "Format d'archive non supporté" } }
     }
 
     print $"Archive extraite dans: ($output_dir)"
@@ -196,7 +196,7 @@ export def backup [source: string, --destination(-d): string = "~/backups"] {
     mkdir $destination
     tar -czf $backup_path $source
 
-    print $"Sauvegarde crÃ©Ã©e: ($backup_path)"
+    print $"Sauvegarde créée: ($backup_path)"
     print $"Taille: (($backup_path | ls | get size.0) | into filesize)"
 }
 
@@ -206,7 +206,7 @@ export def cleanup-backups [backup_dir: string = "~/backups", --keep-days(-k): i
 
     ls $backup_dir | where type == "file" and modified < $cutoff_date | each { |file|
         rm $file.name
-        print $"Sauvegarde supprimÃ©e: ($file.name)"
+        print $"Sauvegarde supprimée: ($file.name)"
     }
 }
 
@@ -215,12 +215,12 @@ alias backup = backup
 alias cleanup = cleanup-backups
 ```
 
-#### ðŸ”¹Monitoring systÃ¨me
+#### 🔧 Monitoring système
 
 **Surveillance des processus :**
 
 ```sh
-# Fonction de monitoring des processus en temps rÃ©el
+# Fonction de monitoring des processus en temps réel
 export def monitor-processes [--interval(-i): duration = 5sec, --top(-t): int = 10] {
     while true {
         clear
@@ -232,16 +232,16 @@ export def monitor-processes [--interval(-i): duration = 5sec, --top(-t): int = 
     }
 }
 
-# Fonction de surveillance de la mÃ©moire
+# Fonction de surveillance de la mémoire
 export def monitor-memory [--interval(-i): duration = 10sec] {
     while true {
         clear
-        print $"=== Surveillance de la mÃ©moire - $(date now) ==="
+        print $"=== Surveillance de la mémoire - $(date now) ==="
 
         let mem_info = (ps | where name != "ps" | reduce -f 0 { |it, acc| $acc + $it.mem })
         let mem_usage = ($mem_info | into filesize)
 
-        print $"Utilisation mÃ©moire totale: ($mem_usage)"
+        print $"Utilisation mémoire totale: ($mem_usage)"
 
         ps | where mem > 100MB | sort-by mem -r | first 10 | select name pid mem | table
 
@@ -267,14 +267,14 @@ alias mon-mem = monitor-memory
 alias mon-disk = monitor-disk
 ```
 
-**Surveillance du rÃ©seau :**
+**Surveillance du réseau :**
 
 ```sh
-# Fonction de surveillance des connexions rÃ©seau
+# Fonction de surveillance des connexions réseau
 export def monitor-network [--interval(-i): duration = 10sec] {
     while true {
         clear
-        print $"=== Surveillance rÃ©seau - $(date now) ==="
+        print $"=== Surveillance réseau - $(date now) ==="
 
         # Connexions TCP
         print "=== Connexions TCP ==="
@@ -288,14 +288,14 @@ export def monitor-network [--interval(-i): duration = 10sec] {
     }
 }
 
-# Fonction de test de connectivitÃ©
+# Fonction de test de connectivité
 export def test-connectivity [host: string, --port(-p): int = 80, --timeout(-t): int = 5] {
     try {
         let result = (run-external nc -z -w $timeout $host $port)
-        print $"âœ… Connexion rÃ©ussie vers ($host):($port)"
+        print $"✅ Connexion réussie vers ($host):($port)"
         true
     } catch {
-        print $"âŒ Connexion Ã©chouÃ©e vers ($host):($port)"
+        print $"❌ Connexion échouée vers ($host):($port)"
         false
     }
 }
@@ -321,11 +321,11 @@ export def ping-stats [host: string, --count(-c): int = 10] {
     }
 
     print $"Ping vers ($host):"
-    print $"  Taux de succÃ¨s: ($success_rate)%"
+    print $"  Taux de succès: ($success_rate)%"
     print $"  Temps moyen: ($avg_time)ms"
 }
 
-# Alias pour le rÃ©seau
+# Alias pour le réseau
 alias mon-net = monitor-network
 alias ping = ping-stats
 alias test-conn = test-connectivity
@@ -334,7 +334,7 @@ alias test-conn = test-connectivity
 **Surveillance des logs :**
 
 ```sh
-# Fonction de surveillance des logs en temps rÃ©el
+# Fonction de surveillance des logs en temps réel
 export def tail-logs [log_file: string, --lines(-n): int = 50, --follow(-f): bool] {
     if $follow {
         tail -f -n $lines $log_file
@@ -379,23 +379,23 @@ alias search-logs = search-logs
 alias errors = analyze-errors
 ```
 
-**Tableau de bord systÃ¨me :**
+**Tableau de bord système :**
 
 ```sh
 # Fonction de tableau de bord complet
 export def system-dashboard [--refresh(-r): duration = 5sec] {
     while true {
         clear
-        print $"=== Tableau de bord systÃ¨me - $(date now) ==="
+        print $"=== Tableau de bord système - $(date now) ==="
 
-        # Informations systÃ¨me
-        print "=== Informations systÃ¨me ==="
+        # Informations système
+        print "=== Informations système ==="
         print $"Utilisateur: ($env.USER)"
-        print $"HÃ´te: (hostname)"
+        print $"Hà´te: (hostname)"
         print $"OS: ($env.OS)"
         print $"Architecture: ($env.ARCH)"
 
-        # Utilisation CPU et mÃ©moire
+        # Utilisation CPU et mémoire
         print "=== Utilisation des ressources ==="
         let top_processes = (ps | where cpu > 0 | sort-by cpu -r | first 5)
         $top_processes | select name pid cpu mem | table
@@ -404,8 +404,8 @@ export def system-dashboard [--refresh(-r): duration = 5sec] {
         print "=== Utilisation du disque ==="
         du | where physical > 1GB | sort-by physical -r | first 5 | select path physical | table
 
-        # Connexions rÃ©seau
-        print "=== Connexions rÃ©seau ==="
+        # Connexions réseau
+        print "=== Connexions réseau ==="
         netstat -tuln | lines | skip 2 | parse "{proto} {local} {foreign} {state}" | group-by proto | transpose protocol count | table
 
         sleep $refresh
@@ -417,4 +417,4 @@ alias dashboard = system-dashboard
 alias sysinfo = system-dashboard
 ```
 
-> Ces outils de monitoring permettent de surveiller efficacement votre systÃ¨me et de dÃ©tecter rapidement les problÃ¨mes de performance ou de sÃ©curitÃ©.
+> Ces outils de monitoring permettent de surveiller efficacement votre système et de détecter rapidement les problèmes de performance ou de sécurité.

@@ -1,11 +1,11 @@
-﻿### ðŸ“Š Analyse de DonnÃ©es AvancÃ©e
+﻿### 📊 Analyse de Données Avancée
 
-#### ðŸ”¹Statistiques descriptives
+#### 🔧 Statistiques descriptives
 
 **Fonctions de statistiques de base :**
 
 ```sh
-# Fonction de statistiques complÃ¨tes
+# Fonction de statistiques complètes
 export def stats [data: list] {
     let count = ($data | length)
     let sum = ($data | reduce -f 0 { |it, acc| $acc + $it })
@@ -37,23 +37,23 @@ export def stats [data: list] {
     }
 }
 
-# Test avec des donnÃ©es
+# Test avec des données
 let test_data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 stats $test_data
 ```
 
 ```sh
-â•­â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â•®
-â”‚ count   â”‚    10 â”‚
-â”‚ sum     â”‚    55 â”‚
-â”‚ mean    â”‚   5.5 â”‚
-â”‚ median  â”‚   5.5 â”‚
-â”‚ std_dev â”‚ 3.028 â”‚
-â”‚ varianceâ”‚ 9.167 â”‚
-â”‚ min     â”‚     1 â”‚
-â”‚ max     â”‚    10 â”‚
-â”‚ range   â”‚     9 â”‚
-â•°â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â•¯
+┌─────────┬───────┤
+│ count   │    10 │
+│ sum     │    55 │
+│ mean    │   5.5 │
+│ median  │   5.5 │
+│ std_dev │ 3.028 │
+│ variance│ 9.167 │
+│ min     │     1 │
+│ max     │    10 │
+│ range   │     9 │
+└─────────┴───────┘
 ```
 
 **Analyse de distribution :**
@@ -81,15 +81,15 @@ export def distribution [data: list, --bins(-b): int = 10] {
     $bins
 }
 
-# Test avec des donnÃ©es alÃ©atoires
+# Test avec des données aléatoires
 let random_data = (1..100 | each { |i| (random integer 1..100) })
 distribution $random_data --bins 10
 ```
 
-**CorrÃ©lation entre variables :**
+**Corrélation entre variables :**
 
 ```sh
-# Fonction de calcul de corrÃ©lation
+# Fonction de calcul de corrélation
 export def correlation [x: list, y: list] {
     let n = ($x | length)
     let sum_x = ($x | reduce -f 0 { |it, acc| $acc + $it })
@@ -107,13 +107,13 @@ export def correlation [x: list, y: list] {
     $numerator / $denominator
 }
 
-# Test de corrÃ©lation
+# Test de corrélation
 let x_data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 let y_data = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
 correlation $x_data $y_data
 ```
 
-#### ðŸ”¹Graphiques et visualisations
+#### 🔧 Graphiques et visualisations
 
 **Graphiques ASCII simples :**
 
@@ -124,7 +124,7 @@ export def bar-chart [data: record, --width(-w): int = 50] {
 
     $data | transpose key value | each { |item|
         let bar_length = (($item.value / $max_value) * $width) | into int
-        let bar = ("â–ˆ" | str repeat $bar_length)
+        let bar = ("█" | str repeat $bar_length)
         $"($item.key): ($bar) ($item.value)"
     }
 }
@@ -142,17 +142,17 @@ bar-chart $sales_data --width 30
 ```
 
 ```sh
-Jan: â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆ 100
-Feb: â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆ 150
-Mar: â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆ 120
-Apr: â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆ 200
-May: â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆ 180
+Jan: ████████████████████████████████ 100
+Feb: ████████████████████████████████████████████████████ 150
+Mar: ████████████████████████████████████████████ 120
+Apr: █████████████████████████████████████████████████████████████████████████████ 200
+May: ████████████████████████████████████████████████████████████████████████ 180
 ```
 
-**Graphique linÃ©aire ASCII :**
+**Graphique linéaire ASCII :**
 
 ```sh
-# Fonction de graphique linÃ©aire ASCII
+# Fonction de graphique linéaire ASCII
 export def line-chart [data: list, --height(-h): int = 10] {
     let max_value = ($data | math max)
     let min_value = ($data | math min)
@@ -161,7 +161,7 @@ export def line-chart [data: list, --height(-h): int = 10] {
     let chart_lines = (0..$height | each { |i|
         let threshold = $max_value - (($i / $height) * $range)
         let line = ($data | each { |value|
-            if $value >= $threshold { "â—" } else { " " }
+            if $value >= $threshold { "●" } else { " " }
         } | str join "")
         $"($line) ($threshold | into string | str substring 0..6)"
     })
@@ -198,7 +198,7 @@ export def histogram [data: list, --bins(-b): int = 10] {
 
     $bins | each { |bin|
         let bar_length = (($bin.count / $max_count) * 30) | into int
-        let bar = ("â–ˆ" | str repeat $bar_length)
+        let bar = ("█" | str repeat $bar_length)
         $"($bin.range): ($bar) ($bin.count)"
     }
 }
@@ -208,12 +208,12 @@ let random_data = (1..100 | each { |i| (random integer 1..50) })
 histogram $random_data --bins 10
 ```
 
-#### ðŸ”¹Export vers diffÃ©rents formats
+#### 🔧 Export vers différents formats
 
 **Export vers CSV avec formatage :**
 
 ```sh
-# Fonction d'export CSV formatÃ©
+# Fonction d'export CSV formaté
 export def export-csv [data: table, output_file: string, --delimiter(-d): string = ","] {
     let headers = ($data | columns | str join $delimiter)
     let rows = ($data | each { |row|
@@ -223,7 +223,7 @@ export def export-csv [data: table, output_file: string, --delimiter(-d): string
     let csv_content = ([$headers] | append $rows | str join "\n")
     $csv_content | save $output_file
 
-    print $"DonnÃ©es exportÃ©es vers: ($output_file)"
+    print $"Données exportées vers: ($output_file)"
 }
 
 # Exemple d'utilisation
@@ -236,10 +236,10 @@ let sales_data = [
 export-csv $sales_data "sales_report.csv"
 ```
 
-**Export vers JSON structurÃ© :**
+**Export vers JSON structuré :**
 
 ```sh
-# Fonction d'export JSON avec mÃ©tadonnÃ©es
+# Fonction d'export JSON avec métadonnées
 export def export-json [data: table, output_file: string, --metadata(-m): record] {
     let export_data = {
         metadata: $metadata,
@@ -249,13 +249,13 @@ export def export-json [data: table, output_file: string, --metadata(-m): record
     }
 
     $export_data | to json | save $output_file
-    print $"DonnÃ©es JSON exportÃ©es vers: ($output_file)"
+    print $"Données JSON exportées vers: ($output_file)"
 }
 
 # Exemple d'utilisation
 let analysis_metadata = {
     title: "Analyse des ventes",
-    author: "SystÃ¨me d'analyse",
+    author: "Système d'analyse",
     version: "1.0"
 }
 
@@ -281,9 +281,9 @@ export def export-html [data: table, output_file: string, --title(-t): string = 
 </head>
 <body>
     <h1>($title)</h1>
-    <p>GÃ©nÃ©rÃ© le: (date now)</p>
+    <p>Généré le: (date now)</p>
 
-    <h2>DonnÃ©es</h2>
+    <h2>Données</h2>
     <table>
         <tr>
             ($data | columns | each { |col| $"<th>($col)</th>" } | str join "")
@@ -296,14 +296,14 @@ export def export-html [data: table, output_file: string, --title(-t): string = 
 </html>"
 
     $html_content | save $output_file
-    print $"Rapport HTML exportÃ© vers: ($output_file)"
+    print $"Rapport HTML exporté vers: ($output_file)"
 }
 
 # Exemple d'utilisation
 export-html $sales_data "sales_report.html" --title "Rapport des ventes"
 ```
 
-#### ðŸ”¹Manipulation de gros volumes de donnÃ©es
+#### 🔧 Manipulation de gros volumes de données
 
 **Traitement par chunks :**
 
@@ -360,10 +360,10 @@ let large_dataset = (1..100000 | each { |i| {
 filter-indexed $large_dataset { |item| $item.value > 500 and $item.category == "A" }
 ```
 
-**AgrÃ©gation optimisÃ©e :**
+**Agrégation optimisée :**
 
 ```sh
-# Fonction d'agrÃ©gation optimisÃ©e
+# Fonction d'agrégation optimisée
 export def aggregate-optimized [data: table, group_by: string, aggregations: record] {
     let grouped = ($data | group-by $group_by)
 
@@ -428,12 +428,12 @@ export def cached-computation [key: string, computation: closure] {
 
 # Exemple d'utilisation
 cached-computation "expensive_calculation" { |it|
-    # Simulation d'un calcul coÃ»teux
+    # Simulation d'un calcul coà»teux
     sleep 2sec
-    {result: "Calcul terminÃ©", timestamp: (date now)}
+    {result: "Calcul terminé", timestamp: (date now)}
 }
 ```
 
-> L'analyse de donnÃ©es avancÃ©e avec NuShell permet de traiter efficacement de gros volumes de donnÃ©es tout en gardant une syntaxe claire et lisible.
+> L'analyse de données avancée avec NuShell permet de traiter efficacement de gros volumes de données tout en gardant une syntaxe claire et lisible.
 
 ---

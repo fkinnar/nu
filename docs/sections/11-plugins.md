@@ -1,24 +1,24 @@
-﻿### ðŸ”Œ Plugins
+﻿### 🔌 Plugins
 
-Les plugins Ã©tendent les capacitÃ©s de NuShell avec de nouvelles commandes et fonctionnalitÃ©s. Ils sont gÃ©nÃ©ralement Ã©crits en Rust et peuvent Ãªtre installÃ©s via `cargo` ou `plugin add`.
+Les plugins étendent les capacités de NuShell avec de nouvelles commandes et fonctionnalités. Ils sont généralement écrits en Rust et peuvent être installés via `cargo` ou `plugin add`.
 
-#### ðŸ”¹OÃ¹ trouver les plugins
+#### 🔧 Où trouver les plugins
 
 **Sources principales :**
 
 - **crates.io** : [https://crates.io/search?q=nu_plugin](https://crates.io/search?q=nu_plugin)
-- **GitHub** : Rechercher `nu_plugin` dans les dÃ©pÃ´ts
+- **GitHub** : Rechercher `nu_plugin` dans les dépôts
 - **Documentation officielle** : [https://www.nushell.sh/plugins/](https://www.nushell.sh/plugins/)
 
 **Plugins populaires :**
 
-- `nu_plugin_polars` - Analyse de donnÃ©es avancÃ©e
-- `nu_plugin_query` - RequÃªtes SQL sur les donnÃ©es
-- `nu_plugin_formats` - Support de formats supplÃ©mentaires
+- `nu_plugin_polars` - Analyse de données avancée
+- `nu_plugin_query` - Requêtes SQL sur les données
+- `nu_plugin_formats` - Support de formats supplémentaires
 - `nu_plugin_inc` - Gestion de versions
 - `nu_plugin_gstat` - Statistiques Git
 
-#### ðŸ”¹Installation via cargo install
+#### 🔧 Installation via cargo install
 
 ```sh
 # Installer un plugin depuis crates.io
@@ -26,22 +26,22 @@ cargo install nu_plugin_polars
 cargo install nu_plugin_query
 cargo install nu_plugin_inc
 
-# VÃ©rifier l'installation
+# Vérifier l'installation
 cargo list | grep nu_plugin
 ```
 
-#### ðŸ”¹Installation via plugin add
+#### 🔧 Installation via plugin add
 
 ```sh
 # Ajouter un plugin (si disponible via plugin add)
 plugin add nu_plugin_polars
 plugin add nu_plugin_query
 
-# Lister les plugins installÃ©s
+# Lister les plugins installés
 plugin list
 ```
 
-#### ðŸ”¹Initialisation et configuration
+#### 🔧 Initialisation et configuration
 
 **Activer les plugins dans config.nu :**
 
@@ -64,7 +64,7 @@ $env.config = ($env.config | upsert plugins {
 })
 ```
 
-**VÃ©rifier que les plugins sont chargÃ©s :**
+**Vérifier que les plugins sont chargés :**
 
 ```sh
 # Lister les commandes disponibles
@@ -75,12 +75,12 @@ polars --help
 query --help
 ```
 
-#### ðŸ”¹Exemples concrets de plugins
+#### 🔧 Exemples concrets de plugins
 
-**nu_plugin_polars - Analyse de donnÃ©es :**
+**nu_plugin_polars - Analyse de données :**
 
 ```sh
-# CrÃ©er un dataset de test
+# Créer un dataset de test
 let sales_data = [
     {date: "2024-01-01", product: "Laptop", price: 999, quantity: 5},
     {date: "2024-01-02", product: "Mouse", price: 25, quantity: 20},
@@ -94,18 +94,18 @@ open sales.csv | polars df
 ```
 
 ```sh
-â•­â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•®
-â”‚ # â”‚    date    â”‚ product â”‚ price â”‚ quantity â”‚
-â”œâ”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
-â”‚ 0 â”‚ 2024-01-01 â”‚ Laptop  â”‚   999 â”‚        5 â”‚
-â”‚ 1 â”‚ 2024-01-02 â”‚ Mouse   â”‚    25 â”‚       20 â”‚
-â”‚ 2 â”‚ 2024-01-03 â”‚ Keyboardâ”‚    75 â”‚       15 â”‚
-â”‚ 3 â”‚ 2024-01-04 â”‚ Laptop  â”‚   999 â”‚        3 â”‚
-â”‚ 4 â”‚ 2024-01-05 â”‚ Monitor â”‚   299 â”‚        8 â”‚
-â•°â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•¯
+┌───┬────────────┬─────────┬───────┬──────────┤
+│ # │    date    │ product │ price │ quantity │
+├───├────────────├─────────├───────├──────────┼
+│ 0 │ 2024-01-01 │ Laptop  │   999 │        5 │
+│ 1 │ 2024-01-02 │ Mouse   │    25 │       20 │
+│ 2 │ 2024-01-03 │ Keyboard│    75 │       15 │
+│ 3 │ 2024-01-04 │ Laptop  │   999 │        3 │
+│ 4 │ 2024-01-05 │ Monitor │   299 │        8 │
+└───┴────────────┴─────────┴───────┴──────────┘
 ```
 
-**OpÃ©rations avancÃ©es avec Polars :**
+**Opérations avancées avec Polars :**
 
 ```sh
 # Calculer le chiffre d'affaires par produit
@@ -121,10 +121,10 @@ open sales.csv | polars df | polars filter (polars col price * polars col quanti
 open sales.csv | polars df | polars describe
 ```
 
-**nu_plugin_query - RequÃªtes SQL :**
+**nu_plugin_query - Requêtes SQL :**
 
 ```sh
-# CrÃ©er une base de donnÃ©es SQLite
+# Créer une base de données SQLite
 let employees = [
     {id: 1, name: "Alice", department: "IT", salary: 75000},
     {id: 2, name: "Bob", department: "HR", salary: 65000},
@@ -135,7 +135,7 @@ let employees = [
 # Convertir en base SQLite
 open employees.csv | into sqlite employees.db
 
-# RequÃªtes SQL
+# Requêtes SQL
 open employees.db | query db "SELECT department, AVG(salary) as avg_salary FROM main GROUP BY department"
 
 open employees.db | query db "SELECT * FROM main WHERE salary > 70000 ORDER BY salary DESC"
@@ -144,31 +144,31 @@ open employees.db | query db "SELECT * FROM main WHERE salary > 70000 ORDER BY s
 **nu_plugin_inc - Gestion de versions :**
 
 ```sh
-# IncrÃ©menter une version
+# Incrémenter une version
 inc --major 1.2.3    # 2.0.0
 inc --minor 1.2.3    # 1.3.0
 inc --patch 1.2.3    # 1.2.4
 
-# Utilisation dans un script de dÃ©ploiement
+# Utilisation dans un script de déploiement
 def bump-version [version_type: string] {
     let current_version = (open Cargo.toml | lines | where $it =~ "version" | parse "version = \"{version}\"" | get version.0)
     let new_version = (inc --$version_type $current_version)
 
-    print $"Version mise Ã  jour: ($current_version) -> ($new_version)"
+    print $"Version mise à  jour: ($current_version) -> ($new_version)"
 
-    # Mettre Ã  jour le fichier Cargo.toml
+    # Mettre à  jour le fichier Cargo.toml
     open Cargo.toml | str replace $"version = \"($current_version)\"" $"version = \"($new_version)\"" | save Cargo.toml
 
-    # CrÃ©er un tag Git
+    # Créer un tag Git
     git add Cargo.toml
     git commit -m $"Bump version to ($new_version)"
     git tag $"v($new_version)"
 }
 ```
 
-#### ðŸ”¹Autres plugins utiles
+#### 🔧 Autres plugins utiles
 
-**nu_plugin_formats - Formats supplÃ©mentaires :**
+**nu_plugin_formats - Formats supplémentaires :**
 
 ```sh
 # Support pour TOML
@@ -193,17 +193,17 @@ open config.yaml | from yaml
 **nu_plugin_gstat - Statistiques Git :**
 
 ```sh
-# Statistiques du dÃ©pÃ´t Git
+# Statistiques du dépôt Git
 gstat
 
-# Statistiques pour un auteur spÃ©cifique
+# Statistiques pour un auteur spécifique
 gstat --author "Alice"
 
-# Statistiques pour une pÃ©riode
+# Statistiques pour une période
 gstat --since "2024-01-01" --until "2024-12-31"
 ```
 
-#### ðŸ”¹CrÃ©er un plugin simple
+#### 🔧 Créer un plugin simple
 
 **Structure d'un plugin minimal :**
 
@@ -217,8 +217,8 @@ struct MyPlugin;
 impl Plugin for MyPlugin {
     fn signature(&self) -> Vec<PluginSignature> {
         vec![PluginSignature::build("my-command")
-            .desc("Ma commande personnalisÃ©e")
-            .required("input", SyntaxShape::String, "EntrÃ©e Ã  traiter")
+            .desc("Ma commande personnalisée")
+            .required("input", SyntaxShape::String, "Entrée à  traiter")
             .category(Category::Custom("MyPlugin".into()))]
     }
 
@@ -277,14 +277,14 @@ register ~/.cargo/bin/nu_plugin_myplugin
 my-command "Hello World"
 ```
 
-#### ðŸ”¹Bonnes pratiques pour les plugins
+#### 🔧 Bonnes pratiques pour les plugins
 
-1. **Nommage** : Utiliser le prÃ©fixe `nu_plugin_`
+1. **Nommage** : Utiliser le préfixe `nu_plugin_`
 2. **Documentation** : Inclure des exemples d'usage
 3. **Gestion d'erreurs** : Messages d'erreur clairs
 4. **Performance** : Optimiser pour les gros datasets
 5. **Tests** : Inclure des tests unitaires
 6. **Configuration** : Permettre la personnalisation
-7. **CompatibilitÃ©** : Tester avec diffÃ©rentes versions de NuShell
+7. **Compatibilité** : Tester avec différentes versions de NuShell
 
-> Les plugins permettent d'Ã©tendre considÃ©rablement les capacitÃ©s de NuShell tout en gardant le shell lÃ©ger et modulaire.
+> Les plugins permettent d'étendre considérablement les capacités de NuShell tout en gardant le shell léger et modulaire.
